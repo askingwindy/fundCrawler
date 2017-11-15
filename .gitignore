@@ -1,0 +1,44 @@
+# maven ignore
+target/
+*.class
+*.jar
+*.war
+*.zip
+*.tar
+*.tar.gz
+
+# gradle ignore
+.gradle/
+
+# eclipse ignore
+.settings/
+.classpath
+.project
+
+#idea ignore
+.idea/
+*.ipr
+*.imp
+*.iml
+*.iws
+
+# antd ignore
+static/node_modules
+static/dist
+
+# temp ignore
+*.log
+*.cache
+*.diff
+*.perf
+*.so
+*.dev
+*.test
+*.sh
+*.txt
+
+# system ignore
+.DS_Store
+Thumbs.db
+logs/
+deploy/
