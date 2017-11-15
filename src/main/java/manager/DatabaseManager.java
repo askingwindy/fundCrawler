@@ -51,6 +51,4 @@ public class DatabaseManager {
         }
     }
 
-    public ResultSet select
-
 }
