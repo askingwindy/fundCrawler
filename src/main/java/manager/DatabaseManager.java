@@ -1,54 +1,155 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2017 All Rights Reserved.
- */
 package manager;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.*;
+import java.util.Map;
 
 /**
  *
  * @author ruiying.hry
- * @version $Id: DatabaseManager.java, v 0.1 2017-11-14 ÏÂÎç9:46 ruiying.hry Exp $$
+ * @version $Id: DatabaseManager.java, v 0.1 2017-11-14 9:46 ruiying.hry Exp $$
  */
 public class DatabaseManager {
 
-    public static final String url      = "jdbc:mysql://127.0.0.1/"; //Êı¾İ¿âÁ¬½Ó
-    public static final String name     = "com.mysql.jdbc.Driver";  //³ÌĞòÇı¶¯
-    public static final String user     = "root";                   //ÓÃ»§Ãû
-    public static final String password = "";                       //ÃÜÂë
+    /** æ—¥å¿—ç®¡ç† */
+    private static Logger      logger   = LoggerFactory.getLogger(DatabaseManager.class);
 
-    public Connection          conn     = null;
-    public PreparedStatement   pst      = null;
+    /** è¿æ¥åœ°å€*/
+    public static final String url      = "jdbc:mysql://127.0.0.1/creep_fund";
+
+    /** é©±åŠ¨*/
+    public static final String name     = "com.mysql.jdbc.Driver";
+
+    /** ç”¨æˆ·å*/
+    public static final String user     = "root";
+
+    /** å¯†ç */
+    public static final String password = "hry123";
+
+    /** è¿æ¥*/
+    private Connection         conn     = null;
+
+    /** pst*/
+    private PreparedStatement  pst      = null;
 
     /**
-     * ´´½¨sql²éÑ¯
-     *
-     * @param sql: SQL²éÑ¯Óï¾ä 
+     * é“¾æ¥sql
      */
     public DatabaseManager() {
+        logger.debug("start database connecting");
+
         try {
-            Class.forName(name);// Ö¸¶¨Á¬½ÓÀàĞÍ  
-            conn = DriverManager.getConnection(url, user, password);// »ñÈ¡Á¬½Ó  
+            //1. åŠ è½½é©±åŠ¨
+            Class.forName(name);
+            //2. å»ºç«‹è¿æ¥
+            conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("startdatabase connection failed", e);
         }
     }
 
     /**
-     *
-     * ¹Ø±ÕÊı¾İ¿âÁ¬½Ó
+     * å…³é—­sql
      */
     public void close() {
+
+        logger.debug("close database connecting");
+
         try {
-            this.conn.close();
-            this.pst.close();
+
+            if (this.pst != null) {
+                this.pst.close();
+            }
+            if (this.conn != null) {
+                this.conn.close();
+
+            }
+
         } catch (SQLException e) {
-            e.printStackTrace();
+
+            logger.error("close database connection failed", e);
         }
     }
 
+    /**
+     * 
+     * æ’å…¥sql,æ ¹æ®sqlå®ç°å®šåˆ¶åŒ–æ’å…¥
+     *
+     * sqlMap={"aa":"a","bb":"b"}
+     *
+     * é‚£ä¹ˆæ’å…¥æ—¶å°†ä¼šç”Ÿæˆsqlå¦‚ä¸‹:
+     * INSERT INTO table
+     * (aa,bb)
+     * VALUES
+     * (a,b)
+     *
+     * @param table  è¡¨å
+     * @param sqlMap keyä¸ºåˆ—å,valueä¸ºå€¼(ä¸éœ€è¦å¸¦æœ‰gmt_createä¸gmt_modified)
+     *
+     * @return æ’å…¥æˆåŠŸ/å¤±è´¥
+     */
+    public boolean insert(String table, Map<String, Object> sqlMap) {
+
+        if (conn == null) {
+            throw new RuntimeException("##DatabaseManager##mysql connection is null");
+        }
+
+        boolean rst = true;
+
+        try {
+
+            //1. åˆ›å»ºinsertè¯­å¥
+            StringBuilder sqlSb = new StringBuilder("INSERT INTO " + table + " (");
+            StringBuilder keySb = new StringBuilder();
+            StringBuilder valueSb = new StringBuilder();
+            for (String key : sqlMap.keySet()) {
+                keySb.append(key).append(",");
+
+                Object value = sqlMap.get(key);
+                if (value instanceof String) {
+                    String val = new StringBuilder("\'").append(value).append("\'").toString();
+                    valueSb.append(val);
+
+                } else {
+                    valueSb.append(value);
+                }
+                valueSb.append(",");
+
+            }
+
+            //> åˆ é™¤keyåˆ—è¡¨å’Œvalueåˆ—è¡¨æœ«å°¾çš„ ,
+            keySb.deleteCharAt(keySb.length() - 1);
+            valueSb.deleteCharAt(valueSb.length() - 1);
+
+            sqlSb.append(keySb).append(") VALUES (").append(valueSb).append(")");
+
+            String sql = sqlSb.toString();
+
+            logger.debug("##DatabaseManager##sql =" + sql);
+
+            //2. åˆ›å»ºsqlæ‰§è¡Œ,å¹¶è·å–è¯¥æ’å…¥çš„id,è®°å½•
+            pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            pst.execute();
+
+            ResultSet rs = pst.getGeneratedKeys();
+            int id = 0;
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+            logger.debug("##DatabaseManager##sql insert success, id=" + id);
+
+        } catch (MySQLIntegrityConstraintViolationException ex) {
+            rst = false;
+            logger.error("##DatabaseManager##mysql constraint violation", ex);
+        } catch (Exception e) {
+            rst = false;
+            logger.error("##DatabaseManager##insert failed.", e);
+        }
+
+        return rst;
+    }
 }
