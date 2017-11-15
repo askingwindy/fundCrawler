@@ -94,7 +94,7 @@ public class DatabaseManager {
     public boolean insert(String table, Map<String, Object> sqlMap) {
 
         if (conn == null) {
-            throw new RuntimeException("##DatabaseManager##mysql connection is null");
+            throw new RuntimeException("mysql connection is null");
         }
 
         boolean rst = true;
@@ -128,7 +128,7 @@ public class DatabaseManager {
 
             String sql = sqlSb.toString();
 
-            logger.debug("##DatabaseManager##sql =" + sql);
+            logger.debug("sql =" + sql);
 
             //2. 创建sql执行,并获取该插入的id,记录
             pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -140,14 +140,14 @@ public class DatabaseManager {
             if (rs.next()) {
                 id = rs.getInt(1);
             }
-            logger.debug("##DatabaseManager##sql insert success, id=" + id);
+            logger.debug("sql insert success, id=" + id);
 
         } catch (MySQLIntegrityConstraintViolationException ex) {
             rst = false;
-            logger.error("##DatabaseManager##mysql constraint violation", ex);
+            logger.error("mysql constraint violation", ex);
         } catch (Exception e) {
             rst = false;
-            logger.error("##DatabaseManager##insert failed.", e);
+            logger.error("insert failed.", e);
         }
 
         return rst;
