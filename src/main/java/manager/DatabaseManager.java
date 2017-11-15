@@ -3,6 +3,7 @@ package manager;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.LogUtil;
 
 import java.sql.*;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class DatabaseManager {
      * 链接sql
      */
     public DatabaseManager() {
-        logger.debug("start database connecting");
+        LogUtil.debug(logger, "start database connecting");
 
         try {
             //1. 加载驱动
@@ -47,7 +48,7 @@ public class DatabaseManager {
             //2. 建立连接
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            logger.error("startdatabase connection failed", e);
+            LogUtil.error(logger, e, "startdatabase connection failed");
         }
     }
 
@@ -56,7 +57,7 @@ public class DatabaseManager {
      */
     public void close() {
 
-        logger.debug("close database connecting");
+        LogUtil.debug(logger, "close database connecting");
 
         try {
 
@@ -70,7 +71,7 @@ public class DatabaseManager {
 
         } catch (SQLException e) {
 
-            logger.error("close database connection failed", e);
+            LogUtil.error(logger, e, "close database connection failed");
         }
     }
 
@@ -94,7 +95,8 @@ public class DatabaseManager {
     public boolean insert(String table, Map<String, Object> sqlMap) {
 
         if (conn == null) {
-            throw new RuntimeException("mysql connection is null");
+            LogUtil.error(logger, "mysql connection is null");
+            return false;
         }
 
         boolean rst = true;
@@ -109,6 +111,7 @@ public class DatabaseManager {
                 keySb.append(key).append(",");
 
                 Object value = sqlMap.get(key);
+                // > 数据库插入中,字符串有'标识包围
                 if (value instanceof String) {
                     String val = new StringBuilder("\'").append(value).append("\'").toString();
                     valueSb.append(val);
@@ -128,7 +131,7 @@ public class DatabaseManager {
 
             String sql = sqlSb.toString();
 
-            logger.debug("sql =" + sql);
+            LogUtil.debug(logger, "sql =" + sql);
 
             //2. 创建sql执行,并获取该插入的id,记录
             pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -140,14 +143,14 @@ public class DatabaseManager {
             if (rs.next()) {
                 id = rs.getInt(1);
             }
-            logger.debug("sql insert success, id=" + id);
+            LogUtil.debug(logger, "sql insert success, id=" + id);
 
         } catch (MySQLIntegrityConstraintViolationException ex) {
             rst = false;
-            logger.error("mysql constraint violation", ex);
+            LogUtil.debug(logger, "mysql constraint violation", ex);
         } catch (Exception e) {
             rst = false;
-            logger.error("insert failed.", e);
+            LogUtil.error(logger, e, "insert failed.");
         }
 
         return rst;

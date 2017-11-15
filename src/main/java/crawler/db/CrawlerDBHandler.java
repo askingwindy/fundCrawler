@@ -7,6 +7,7 @@ package crawler.db;
 import manager.DatabaseManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.LogUtil;
 
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -22,7 +23,7 @@ public class CrawlerDBHandler implements Runnable {
     private static Logger         logger = LoggerFactory.getLogger(CrawlerDBHandler.class);
 
     /** 数据库连接管理*/
-    private DatabaseManager databaseManager;
+    private DatabaseManager       databaseManager;
 
     /** 数据库信息处理队列===插入队 */
     private BlockingQueue<Object> waitingInsertObj;
@@ -48,9 +49,9 @@ public class CrawlerDBHandler implements Runnable {
 
             databaseManager.insert(tableName, sqlMap);
         } catch (InterruptedException e) {
-            logger.error("consume interrupt error. ", e);
+            LogUtil.error(logger, e, "consume interrupt error. ");
         } catch (Exception e) {
-            logger.error("consume error. ", e);
+            LogUtil.error(logger, e, "consume error. ");
         }
 
     }

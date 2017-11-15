@@ -2,6 +2,7 @@ package manager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.LogUtil;
 
 import java.io.*;
 
@@ -14,22 +15,12 @@ import java.io.*;
 public class FileManager {
 
     /** 日志管理 */
-    private static Logger logger  = LoggerFactory.getLogger(FileManager.class);
+    private static Logger       logger           = LoggerFactory.getLogger(FileManager.class);
 
     /**
      * 编码格式
      */
     private String              encoding         = "UTF-8";
-
-    /**
-     * 读入数据的文件名.默认为input.txt
-     */
-    private String              inputFileName    = "input.txt";
-
-    /**
-     * 写出数据的文件名.默认为output.txt
-     */
-    private String              outputFileName   = "output.txt";
 
     /** 文件夹地址*/
     private static final String DEFAULT_FILE_DIC = "src/main/resources/";
@@ -43,23 +34,29 @@ public class FileManager {
 
     /**
      * 将data内容写出到文件中
+     *
+     * @param outputFileName 输出文件名
      * @param data 内容
+     * @param append 是否追加内容;false表明覆盖所有内容
+     *
      * @return 成功/失败
      */
-    public boolean writeIntoFile(String data) {
+    public boolean writeIntoFile(String outputFileName, String data, boolean append) {
         boolean rst = true;
         File file = new File(DEFAULT_FILE_DIC + outputFileName);
 
         try {
             //创建新的文件
             if (!file.exists()) {
-                logger.info("NO SUCH FILE, CREATE A NEW ONE, FILE name = "+ outputFileName);
+                LogUtil.info(logger, "NO SUCH FILE, CREATE A NEW ONE, FILENAME= " + outputFileName);
 
                 file.createNewFile();
             }
 
             //false表示覆盖文件
-            FileOutputStream ws = new FileOutputStream(file, false);
+            LogUtil.infoCritical(logger, "START WRITING FILE,FILENAME= ", outputFileName);
+
+            FileOutputStream ws = new FileOutputStream(file, append);
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ws, this.encoding));
 
             writer.write(data);
@@ -71,9 +68,11 @@ public class FileManager {
             ws.close();
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LogUtil.error(logger, ex, "writing file failed, filename=", outputFileName);
             rst = false;
         }
+
+        LogUtil.infoCritical(logger, "SUCCESS WRITING FILE, FILENAME=", outputFileName);
 
         return rst;
 
@@ -81,12 +80,16 @@ public class FileManager {
 
     /**
      * 将file内容读入到内存中
+     *
      * @param fileName 文件名
+     *
      * @return 内容.失败为null
      */
     public String readFile(String fileName) {
         StringBuilder dataBuilder = new StringBuilder();
         File file = new File(DEFAULT_FILE_DIC + fileName);
+
+        LogUtil.infoCritical(logger, "START READING FILE,FILENAME= ", fileName);
 
         try {
 
@@ -106,48 +109,15 @@ public class FileManager {
             isr.close();
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LogUtil.error(logger, ex, "reading file failed, filename=", fileName);
 
             return null;
         }
+
+        LogUtil.infoCritical(logger, "SUCCESS READING FILE,FILENAME= ", fileName);
 
         return dataBuilder.toString();
 
     }
 
-    /**
-     * Getter method for property   inputFileName.
-     *
-     * @return property value of inputFileName
-     */
-    public String getInputFileName() {
-        return inputFileName;
-    }
-
-    /**
-     * Setter method for property   inputFileName .
-     *
-     * @param inputFileName value to be assigned to property inputFileName
-     */
-    public void setInputFileName(String inputFileName) {
-        this.inputFileName = inputFileName;
-    }
-
-    /**
-     * Getter method for property   outputFileName.
-     *
-     * @return property value of outputFileName
-     */
-    public String getOutputFileName() {
-        return outputFileName;
-    }
-
-    /**
-     * Setter method for property   outputFileName .
-     *
-     * @param outputFileName value to be assigned to property outputFileName
-     */
-    public void setOutputFileName(String outputFileName) {
-        this.outputFileName = outputFileName;
-    }
 }

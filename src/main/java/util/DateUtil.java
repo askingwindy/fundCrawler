@@ -50,10 +50,10 @@ public abstract class DateUtil {
         try {
             d = dateFormat.parse(sDate);
         } catch (ParseException ex) {
-            logger.error("##DateUtil##sDate=" + sDate + ", formatter=" + formatter + ",转化失败", ex);
+            LogUtil.error(logger, ex, "sDate=" + sDate + ", formatter=" + formatter + ",转化失败");
             return null;
         } catch (Exception ex) {
-            logger.error("##DateUtil##sDate=" + sDate + ", formatter=" + formatter + ",异常", ex);
+            LogUtil.error(logger, ex, "sDate=" + sDate + ", formatter=" + formatter + ",异常");
             return null;
         }
 

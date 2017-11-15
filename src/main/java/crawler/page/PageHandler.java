@@ -15,5 +15,5 @@ public interface PageHandler {
      * @param htmltext 页面信息
      * @return 成功失败
      */
-    boolean getResult(String htmltext);
+    boolean handle(String htmltext);
 }

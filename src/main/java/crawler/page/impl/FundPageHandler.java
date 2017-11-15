@@ -20,7 +20,7 @@ public class FundPageHandler implements PageHandler {
                                                            + "|png|mp3|mp3|zip|gz))$");
 
     @Override
-    public boolean getResult(String htmltext) {
+    public boolean handle(String htmltext) {
         return false;
     }
 }

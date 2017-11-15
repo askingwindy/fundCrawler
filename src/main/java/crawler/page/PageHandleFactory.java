@@ -20,10 +20,9 @@ import java.util.Map;
  */
 public class PageHandleFactory {
 
-    private static Map<PageTypeEnum, PageHandler> holder = null;
+    private static Map<PageTypeEnum, PageHandler> holder = new HashMap<PageTypeEnum, PageHandler>();
 
     static {
-        holder = new HashMap<PageTypeEnum, PageHandler>();
         holder.put(PageTypeEnum.FUND_INFO, new FundPageHandler());
         holder.put(PageTypeEnum.FUND_ALL, new FundCodePageHandler());
     }
