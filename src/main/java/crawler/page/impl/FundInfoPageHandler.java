@@ -60,8 +60,15 @@ public class FundInfoPageHandler implements PageHandler {
         LogUtil.debug(logger, fundInfo.toString());
 
         //3. 数据库处理
-        DatabaseManager databaseManager = new DatabaseManager(DBCPUtil.getConnection());
-        databaseManager.insert(FundTableNameContants.FUND_INFO_TALBE_NAME, fundInfo);
+        try {
+            DatabaseManager databaseManager = new DatabaseManager(DBCPUtil.getConnection());
+            databaseManager.insert(FundTableNameContants.FUND_INFO_TALBE_NAME, fundInfo);
+        } catch (Exception e) {
+            LogUtil.error(logger, e, "handle fund info failed, code=" + fundCode);
+            return false;
+        }
+
+        LogUtil.info(logger, "handle fund success,code=" + fundCode);
 
         return true;
     }

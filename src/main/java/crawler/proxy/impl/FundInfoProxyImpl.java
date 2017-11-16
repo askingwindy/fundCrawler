@@ -22,8 +22,10 @@ import util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 基金单个页面详情获取
@@ -48,12 +50,11 @@ public class FundInfoProxyImpl implements ProxyHandler {
 
         final Result<Void> rst = new Result<Void>();
 
-        final List<String> handleSuccessCodes = new ArrayList<String>();
-        final List<String> toHandledCodes = new ArrayList<String>();
+        final List<String> handleSuccessCodes = new Vector<String>();
+        final List<String> toHandledCodes = new Vector<String>();
 
         serviceTemplate.executeWithoutTransaction(rst, new ServiceCallBack() {
 
-            HttpManager httpManager = new HttpManager(); ;
             FileManager fileManager = new FileManager();
 
             @Override
@@ -94,7 +95,7 @@ public class FundInfoProxyImpl implements ProxyHandler {
             @Override
             public void executeService() {
 
-                ExecutorService cachedThreadPool =  Executors.newFixedThreadPool(4);;
+                ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4);
 
                 //1. 获取html
                 for (final String fundCode : toHandledCodes) {
@@ -103,9 +104,11 @@ public class FundInfoProxyImpl implements ProxyHandler {
                         continue;
                     }
 
-                    cachedThreadPool.submit(new Runnable() {
+                    fixedThreadPool.submit(new Runnable() {
                         @Override
                         public void run() {
+                            LogUtil.info(logger, "start handling fundCode=" + fundCode);
+                            HttpManager httpManager = new HttpManager();
                             String fundInfoUrl = "http://fund.eastmoney.com/f10/jbgk_" + fundCode
                                                  + ".html";
 
@@ -124,17 +127,30 @@ public class FundInfoProxyImpl implements ProxyHandler {
                                 //2.2 如果失败了,在控制台输出记录一下
                                 LogUtil.info(logger, "fund info handle failed, code=" + fundCode);
                             }
+                            httpManager.shuntDown();
+
                         }
                     });
-
                 }
-                LogUtil.infoCritical(logger, "SUCCESS CRAWLER FUND CODE LIST");
+
+                // 启动一次顺序关闭，执行以前提交的任务，但不接受新任务。
+                fixedThreadPool.shutdown();
+                try {
+                    // 请求关闭、发生超时或者当前线程中断，无论哪一个首先发生之后，都将导致阻塞，直到所有任务完成执行
+                    // 设置最长等待10秒
+                    while (!fixedThreadPool.awaitTermination(10, TimeUnit.SECONDS))
+                        ;
+                } catch (InterruptedException e) {
+                    //
+                    e.printStackTrace();
+                }
+
+                LogUtil.infoCritical(logger, "SUCCESS END CRAWLER FUND INFO");
 
             }
 
             @Override
             public void end() {
-                httpManager.shuntDown();
                 //将本次处理的基金写入到文件中,hanndledCodes写入到文件中(在文末追加)
                 fileManager.writeIntoFile(FileNameContants.FUND_INFO_HANDLED_CODES,
                     StringUtils.list2Str(handleSuccessCodes), true);
