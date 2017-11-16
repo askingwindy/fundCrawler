@@ -21,8 +21,7 @@ public class FundInfoPageHandlerTest {
     }
     @Test
     public void testHandle() throws Exception {
-        fundInfoPageHandler = new FundInfoPageHandler();
-        fundInfoPageHandler.setFundCode("169201");
+        fundInfoPageHandler = new FundInfoPageHandler("169201");
 
         fundInfoPageHandler.handle(this.htmlStr);
     }

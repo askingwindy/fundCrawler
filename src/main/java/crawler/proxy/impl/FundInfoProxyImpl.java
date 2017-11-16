@@ -2,14 +2,12 @@ package crawler.proxy.impl;
 
 import base.Result;
 import base.contants.FileNameContants;
-import base.enums.PageTypeEnum;
 import base.template.ServiceCallBack;
 import base.template.ServiceTemplate;
 import base.template.impl.ServiceTemplateImpl;
 import com.alibaba.common.lang.StringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import crawler.page.PageHandleFactory;
 import crawler.page.PageHandler;
 import crawler.page.impl.FundInfoPageHandler;
 import crawler.proxy.ProxyHandler;
@@ -114,9 +112,9 @@ public class FundInfoProxyImpl implements ProxyHandler {
 
                             String fundInfoHtml = httpManager.getHtmlByUrl(fundInfoUrl);
 
+
                             //2. 处理信息
-                            PageHandler pageHandler = PageHandleFactory
-                                .newInstance(PageTypeEnum.FUND_INFO);
+                            PageHandler pageHandler = new FundInfoPageHandler(fundCode);
                             if (pageHandler instanceof FundInfoPageHandler) {
                                 ((FundInfoPageHandler) pageHandler).setFundCode(fundCode);
                             }

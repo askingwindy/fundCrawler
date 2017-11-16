@@ -1,12 +1,11 @@
 package crawler.proxy.impl;
 
 import base.Result;
-import base.enums.PageTypeEnum;
 import base.template.ServiceCallBack;
 import base.template.ServiceTemplate;
 import base.template.impl.ServiceTemplateImpl;
-import crawler.page.PageHandleFactory;
 import crawler.page.PageHandler;
+import crawler.page.impl.FundCodePageHandler;
 import crawler.proxy.ProxyHandler;
 import manager.HttpManager;
 import org.slf4j.Logger;
@@ -46,7 +45,7 @@ public class FundCodeProxyImpl implements ProxyHandler {
                 String htmlFundCode = httpManager.getHtmlByUrl(fundAllGetUrl);
 
                 //2. 处理信息
-                PageHandler pageHandler = PageHandleFactory.newInstance(PageTypeEnum.FUND_ALL);
+                PageHandler pageHandler = new FundCodePageHandler();
                 pageHandler.handle(htmlFundCode);
                 LogUtil.infoCritical(logger, "SUCCESS CRAWLER FUND CODE LIST");
 

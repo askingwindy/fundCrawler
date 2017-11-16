@@ -29,8 +29,14 @@ public class FundInfoPageHandler implements PageHandler {
 
     private String        fundCode;
 
+    public FundInfoPageHandler(String fundCode) {
+        this.fundCode = fundCode;
+    }
+
     @Override
     public boolean handle(String htmltext) {
+
+        LogUtil.info(logger, "page handle fund start,code=" + fundCode);
 
         if (StringUtil.isEmpty(fundCode)) {
             throw new RuntimeException("基金代码不存在,无法执行逻辑");
