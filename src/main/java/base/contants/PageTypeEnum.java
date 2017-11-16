@@ -1,8 +1,4 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2017 All Rights Reserved.
- */
-package crawler.page;
+package base.contants;
 
 /**
  * 页面类型

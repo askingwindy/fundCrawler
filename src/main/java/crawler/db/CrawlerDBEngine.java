@@ -1,7 +1,3 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2017 All Rights Reserved.
- */
 package crawler.db;
 
 import org.slf4j.Logger;

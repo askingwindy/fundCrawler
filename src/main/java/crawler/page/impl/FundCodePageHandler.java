@@ -1,12 +1,8 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2017 All Rights Reserved.
- */
 package crawler.page.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import contants.FileNameContants;
+import base.contants.FileNameContants;
 import crawler.page.PageHandler;
 import manager.FileManager;
 import org.slf4j.Logger;

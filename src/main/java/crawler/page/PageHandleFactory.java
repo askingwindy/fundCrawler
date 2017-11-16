@@ -1,9 +1,6 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2017 All Rights Reserved.
- */
 package crawler.page;
 
+import base.contants.PageTypeEnum;
 import crawler.page.impl.FundCodePageHandler;
 import crawler.page.impl.FundPageHandler;
 
@@ -33,7 +30,7 @@ public class PageHandleFactory {
      * @return
      * @throws Exception
      */
-    public static PageHandler newInstance(PageTypeEnum type) throws Exception {
+    public static PageHandler newInstance(PageTypeEnum type) {
         return holder.get(type);
     }
 

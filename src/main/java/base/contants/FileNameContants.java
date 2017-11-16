@@ -1,9 +1,9 @@
-package contants;
+package base.contants;
 
 /**
  * 文件名管理常量类
  * @author ruiying.hry
- * @version $Id: contants.FileNameContants.java, v 0.1 2017-11-15 下午8:09 ruiying.hry Exp $$
+ * @version $Id: base.contants.FileNameContants.java, v 0.1 2017-11-15 下午8:09 ruiying.hry Exp $$
  */
 public class FileNameContants {
 

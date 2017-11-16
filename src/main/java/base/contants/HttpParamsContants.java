@@ -1,8 +1,4 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2017 All Rights Reserved.
- */
-package contants;
+package base.contants;
 
 /**
  * http的一些常量

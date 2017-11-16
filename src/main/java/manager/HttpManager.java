@@ -1,10 +1,6 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2017 All Rights Reserved.
- */
 package manager;
 
-import contants.HttpParamsContants;
+import base.contants.HttpParamsContants;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
