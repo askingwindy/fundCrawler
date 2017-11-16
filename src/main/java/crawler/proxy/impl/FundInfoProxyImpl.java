@@ -11,13 +11,15 @@ import com.alibaba.fastjson.JSONArray;
 import crawler.page.PageHandler;
 import crawler.page.impl.FundInfoPageHandler;
 import crawler.proxy.ProxyHandler;
+import manager.DatabaseManager;
 import manager.FileManager;
 import manager.HttpManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.DBCPUtil;
 import util.LogUtil;
-import util.StringUtils;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -33,15 +35,19 @@ import java.util.concurrent.TimeUnit;
  */
 public class FundInfoProxyImpl implements ProxyHandler {
 
-    /**
-     * 日志管理
-     */
-    private static Logger   logger          = LoggerFactory.getLogger(FundInfoProxyImpl.class);
+    /**日志管理*/
+    private static Logger   logger            = LoggerFactory.getLogger(FundInfoProxyImpl.class);
+
+    /**日志管理-错误code的输出*/
+    private static Logger   errorCodeLogger   = LoggerFactory.getLogger("fund_info_error_code");
+
+    /**日志管理-成功写入code的输出*/
+    private static Logger   sueedssCodeLogger = LoggerFactory.getLogger("fund_info_success_code");
 
     /**
      * 模板处理
      */
-    private ServiceTemplate serviceTemplate = new ServiceTemplateImpl();
+    private ServiceTemplate serviceTemplate   = new ServiceTemplateImpl();
 
     @Override
     public boolean execute() {
@@ -93,7 +99,7 @@ public class FundInfoProxyImpl implements ProxyHandler {
             @Override
             public void executeService() {
 
-                ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4);
+                ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
 
                 //1. 获取html
                 for (final String fundCode : toHandledCodes) {
@@ -111,21 +117,27 @@ public class FundInfoProxyImpl implements ProxyHandler {
                                                  + ".html";
 
                             String fundInfoHtml = httpManager.getHtmlByUrl(fundInfoUrl);
-
+                            httpManager.shuntDown();
 
                             //2. 处理信息
-                            PageHandler pageHandler = new FundInfoPageHandler(fundCode);
-                            if (pageHandler instanceof FundInfoPageHandler) {
-                                ((FundInfoPageHandler) pageHandler).setFundCode(fundCode);
+                            Connection connection = DBCPUtil.getConnection();
+                            if (connection == null) {
+                                //2.2 如果失败了,在控制台输出记录一下
+                                LogUtil.warn(logger, "connection refused, code=" + fundCode);
+                                LogUtil.error(errorCodeLogger, "code="+fundCode);
+                                return;
                             }
+                            PageHandler pageHandler = new FundInfoPageHandler(fundCode,
+                                new DatabaseManager(connection));
                             if (pageHandler.handle(fundInfoHtml)) {
                                 //2.1 如果处理成功了,将这个code放入到已处理的set中
-                                handleSuccessCodes.add(fundCode);
+                                LogUtil.info(sueedssCodeLogger,fundCode+",");
                             } else {
                                 //2.2 如果失败了,在控制台输出记录一下
-                                LogUtil.info(logger, "fund info handle failed, code=" + fundCode);
+                                LogUtil.warn(logger, "fund info handle failed, code=" + fundCode);
+                                LogUtil.warn(logger, "connection refused, code=" + fundCode);
+
                             }
-                            httpManager.shuntDown();
 
                         }
                     });
@@ -149,11 +161,7 @@ public class FundInfoProxyImpl implements ProxyHandler {
 
             @Override
             public void end() {
-                //将本次处理的基金写入到文件中,hanndledCodes写入到文件中(在文末追加)
-                fileManager.writeIntoFile(FileNameContants.FUND_INFO_HANDLED_CODES,
-                    StringUtils.list2Str(handleSuccessCodes), true);
-                fileManager = null;
-
+                fileManager=null;
             }
         });
 

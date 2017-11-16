@@ -7,22 +7,22 @@ import util.LogUtil;
 import java.io.*;
 
 /**
- * ÎÄ¼ş¶ÁĞ´¹ÜÀíÆ÷
+ * æ–‡ä»¶è¯»å†™ç®¡ç†å™¨
  * 
  * @author ruiying.hry
- * @version $Id: FileManager.java, v 0.1 2017-10-30 ÉÏÎç9:12 ruiying.hry Exp $$
+ * @version $Id: FileManager.java, v 0.1 2017-10-30 ä¸Šåˆ9:12 ruiying.hry Exp $$
  */
 public class FileManager {
 
-    /** ÈÕÖ¾¹ÜÀí */
+    /** æ—¥å¿—ç®¡ç† */
     private static Logger logger         = LoggerFactory.getLogger(FileManager.class);
 
     /**
-     * ±àÂë¸ñÊ½
+     * ç¼–ç æ ¼å¼
      */
     private String        encoding       = "UTF-8";
 
-    /** ÎÄ¼ş¼ĞµØÖ·*/
+    /** æ–‡ä»¶å¤¹åœ°å€*/
     private String        defaultFileDic = "src/main/resources/";
 
     public FileManager() {
@@ -33,27 +33,27 @@ public class FileManager {
     }
 
     /**
-     * ½«dataÄÚÈİĞ´³öµ½ÎÄ¼şÖĞ
+     * å°†dataå†…å®¹å†™å‡ºåˆ°æ–‡ä»¶ä¸­
      *
-     * @param outputFileName Êä³öÎÄ¼şÃû
-     * @param data ÄÚÈİ
-     * @param append ÊÇ·ñ×·¼ÓÄÚÈİ;false±íÃ÷¸²¸ÇËùÓĞÄÚÈİ
+     * @param outputFileName è¾“å‡ºæ–‡ä»¶å
+     * @param data å†…å®¹
+     * @param append æ˜¯å¦è¿½åŠ å†…å®¹;falseè¡¨æ˜è¦†ç›–æ‰€æœ‰å†…å®¹
      *
-     * @return ³É¹¦/Ê§°Ü
+     * @return æˆåŠŸ/å¤±è´¥
      */
     public boolean writeIntoFile(String outputFileName, String data, boolean append) {
         boolean rst = true;
         File file = new File(defaultFileDic + outputFileName);
 
         try {
-            //´´½¨ĞÂµÄÎÄ¼ş
+            //åˆ›å»ºæ–°çš„æ–‡ä»¶
             if (!file.exists()) {
                 LogUtil.info(logger, "NO SUCH FILE, CREATE A NEW ONE, FILENAME= " + outputFileName);
 
                 file.createNewFile();
             }
 
-            //false±íÊ¾¸²¸ÇÎÄ¼ş
+            //falseè¡¨ç¤ºè¦†ç›–æ–‡ä»¶
             LogUtil.infoCritical(logger, "START WRITING FILE,FILENAME= ", outputFileName);
 
             FileOutputStream ws = new FileOutputStream(file, append);
@@ -79,11 +79,11 @@ public class FileManager {
     }
 
     /**
-     * ½«fileÄÚÈİ¶ÁÈëµ½ÄÚ´æÖĞ
+     * å°†fileå†…å®¹è¯»å…¥åˆ°å†…å­˜ä¸­
      *
-     * @param fileName ÎÄ¼şÃû
+     * @param fileName æ–‡ä»¶å
      *
-     * @return ÄÚÈİ.Ê§°ÜÎªnull
+     * @return å†…å®¹.å¤±è´¥ä¸ºnull
      */
     public String readFile(String fileName) {
         StringBuilder dataBuilder = new StringBuilder();
@@ -98,7 +98,7 @@ public class FileManager {
             BufferedReader reader = new BufferedReader(isr);
 
             String tempString = null;
-            // Ò»´Î¶ÁÈëÒ»ĞĞ£¬Ö±µ½¶ÁÈënullÎªÎÄ¼ş½áÊø
+            // ä¸€æ¬¡è¯»å…¥ä¸€è¡Œï¼Œç›´åˆ°è¯»å…¥nullä¸ºæ–‡ä»¶ç»“æŸ
             while ((tempString = reader.readLine()) != null) {
                 dataBuilder.append(tempString);
             }

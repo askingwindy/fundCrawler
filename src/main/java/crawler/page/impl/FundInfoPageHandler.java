@@ -11,7 +11,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.DBCPUtil;
 import util.DateUtil;
 import util.LogUtil;
 
@@ -25,12 +24,15 @@ import java.util.Map;
  */
 public class FundInfoPageHandler implements PageHandler {
     /** 日志管理 */
-    private static Logger logger = LoggerFactory.getLogger(FundInfoPageHandler.class);
+    private static Logger   logger = LoggerFactory.getLogger(FundInfoPageHandler.class);
 
-    private String        fundCode;
+    private String          fundCode;
 
-    public FundInfoPageHandler(String fundCode) {
+    private DatabaseManager databaseManager;
+
+    public FundInfoPageHandler(String fundCode, DatabaseManager databaseManager) {
         this.fundCode = fundCode;
+        this.databaseManager = databaseManager;
     }
 
     @Override
@@ -67,7 +69,8 @@ public class FundInfoPageHandler implements PageHandler {
 
         //3. 数据库处理
         try {
-            DatabaseManager databaseManager = new DatabaseManager(DBCPUtil.getConnection());
+            LogUtil.info(logger, fundInfo.toString());
+
             databaseManager.insert(FundTableNameContants.FUND_INFO_TALBE_NAME, fundInfo);
         } catch (Exception e) {
             LogUtil.error(logger, e, "handle fund info failed, code=" + fundCode);

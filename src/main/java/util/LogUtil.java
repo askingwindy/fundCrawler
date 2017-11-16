@@ -44,6 +44,20 @@ public class LogUtil {
         }
     }
 
+
+    /**
+     * 生成警告级别日志
+     * 可处理任意多个输入参数，并避免在日志级别不够时字符串拼接带来的资源浪费
+     *
+     * @param logger    日志对象
+     * @param obj       泛型对象列表
+     */
+    public static void warn(Logger logger,  Object... obj) {
+        if (logger != null) {
+            logger.warn(getLogString(obj));
+        }
+    }
+
     /**
      * 生成错误级别日志
      * 可处理任意多个输入参数，并避免在日志级别不够时字符串拼接带来的资源浪费

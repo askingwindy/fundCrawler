@@ -29,20 +29,20 @@ public class DBCPUtil {
         basicDataSource.setUsername(DatabaseParamsContants.USER);
         basicDataSource.setPassword(DatabaseParamsContants.PASSWORD);
         //数据库初始化时，创建的连接个数
-        basicDataSource.setInitialSize(10);
-        //最小空闲连接数
-        basicDataSource.setMinIdle(5);
-        //数据库最大连接数
-        basicDataSource.setMaxIdle(10);
+        basicDataSource.setInitialSize(100);
+        basicDataSource.setMaxTotal(100);
+        //最小空闲连接数:当空闲的连接数少于阀值时，连接池就会预申请去一些连接，以免洪峰来时来不及申请。
+        basicDataSource.setMinIdle(10);
+        //数据库最大排队连接数
+        basicDataSource.setMaxIdle(1000);
         //最大等待时间:1s
         basicDataSource.setMaxWaitMillis(1000);
         //空闲连接60秒中后释放
-        basicDataSource.setMinEvictableIdleTimeMillis(60 * 1000);
+        basicDataSource.setMinEvictableIdleTimeMillis( 1000);
         //5分钟检测一次是否有死掉的线程
-        basicDataSource.setTimeBetweenEvictionRunsMillis(5 * 60 * 1000);
-        basicDataSource.setTestOnBorrow(true);
-        //自动提交
-        basicDataSource.setDefaultAutoCommit(true);
+        basicDataSource.setTimeBetweenEvictionRunsMillis(1000);
+        //回收被遗弃的链接
+        basicDataSource.setRemoveAbandonedTimeout(30);
     }
 
     /**

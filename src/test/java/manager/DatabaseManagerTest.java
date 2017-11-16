@@ -1,8 +1,11 @@
 package manager;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.DBCPUtil;
 import util.DateUtil;
+import util.LogUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,10 +16,14 @@ import java.util.Map;
 public class DatabaseManagerTest {
 
 
+    /**日志管理-成功写入code的输出*/
+    private static Logger sueedssCodeLogger = LoggerFactory.getLogger("fund_info_success_code");
 
     @Test
     public void testInsert() throws Exception {
         DatabaseManager dbManager = new DatabaseManager(DBCPUtil.getConnection());
+        LogUtil.info(sueedssCodeLogger,",");
+
         try {
             Map<String, Object> sqlMap = new HashMap<String, Object>();
             sqlMap.put("fund_name", "基金名字");
