@@ -1,82 +1,43 @@
+/**
+ * Alipay.com Inc.
+ * Copyright (c) 2004-2017 All Rights Reserved.
+ */
 package manager;
 
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.DBCPUtil;
+import util.DateUtil;
 import util.LogUtil;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Date;
 import java.util.Map;
 
 /**
- *
+ * 数据库管理器
  * @author ruiying.hry
- * @version $Id: DatabaseManager.java, v 0.1 2017-11-14 9:46 ruiying.hry Exp $$
+ * @version $Id: DatabaseManager.java, v 0.1 2017-11-16 上午11:21 ruiying.hry Exp $$
  */
 public class DatabaseManager {
 
     /** 日志管理 */
-    private static Logger      logger   = LoggerFactory.getLogger(DatabaseManager.class);
-
-    /** 连接地址*/
-    public static final String url      = "jdbc:mysql://127.0.0.1/creep_fund";
-
-    /** 驱动*/
-    public static final String name     = "com.mysql.jdbc.Driver";
-
-    /** 用户名*/
-    public static final String user     = "root";
-
-    /** 密码*/
-    public static final String password = "hry123";
+    private static Logger logger = LoggerFactory.getLogger(DatabaseManager.class);
 
     /** 连接*/
-    private Connection         conn     = null;
+    private Connection    connection;
 
-    /** pst*/
-    private PreparedStatement  pst      = null;
-
-    /**
-     * 链接sql
-     */
-    public DatabaseManager() {
-        LogUtil.debug(logger, "start database connecting");
-
-        try {
-            //1. 加载驱动
-            Class.forName(name);
-            //2. 建立连接
-            conn = DriverManager.getConnection(url, user, password);
-        } catch (Exception e) {
-            LogUtil.error(logger, e, "startdatabase connection failed");
-        }
+    public DatabaseManager(Connection connection) {
+        this.connection = connection;
     }
 
     /**
-     * 关闭sql
-     */
-    public void close() {
-
-        LogUtil.debug(logger, "close database connecting");
-
-        try {
-
-            if (this.pst != null) {
-                this.pst.close();
-            }
-            if (this.conn != null) {
-                this.conn.close();
-
-            }
-
-        } catch (SQLException e) {
-
-            LogUtil.error(logger, e, "close database connection failed");
-        }
-    }
-
-    /**
-     * 
+     *
+     *
      * 插入sql,根据sql实现定制化插入
      *
      * sqlMap={"aa":"a","bb":"b"}
@@ -86,13 +47,15 @@ public class DatabaseManager {
      * (aa,bb)
      * VALUES
      * (a,b)
-     *
-     * @param table  表名
-     * @param sqlMap key为列名,value为值(不需要带有gmt_create与gmt_modified)
-     *
+     * @param table table  表名
+     * @param sqlMap sqlMap key为列名,value为值(不需要带有gmt_create与gmt_modified)
      * @return 插入成功/失败
      */
     public boolean insert(String table, Map<String, Object> sqlMap) {
+
+        Connection conn = this.connection;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
 
         if (conn == null) {
             LogUtil.error(logger, "mysql connection is null");
@@ -111,11 +74,14 @@ public class DatabaseManager {
                 keySb.append(key).append(",");
 
                 Object value = sqlMap.get(key);
-                // > 数据库插入中,字符串有'标识包围
                 if (value instanceof String) {
+                    // > 数据库插入中,字符串有'标识包围
                     String val = new StringBuilder("\'").append(value).append("\'").toString();
                     valueSb.append(val);
 
+                } else if (value instanceof Date) {
+                    // >util.Date需要转化为sql.Date
+                    valueSb.append("DATE_FORMAT(\'").append(DateUtil.format((Date)value,DateUtil.TIME_FORMAT_STANDARD)).append("\',\'%Y-%m-%d %H:%i%s\')");
                 } else {
                     valueSb.append(value);
                 }
@@ -138,12 +104,7 @@ public class DatabaseManager {
 
             pst.execute();
 
-            ResultSet rs = pst.getGeneratedKeys();
-            int id = 0;
-            if (rs.next()) {
-                id = rs.getInt(1);
-            }
-            LogUtil.debug(logger, "sql insert success, id=" + id);
+            LogUtil.debug(logger, "sql insert success");
 
         } catch (MySQLIntegrityConstraintViolationException ex) {
             rst = false;
@@ -151,6 +112,8 @@ public class DatabaseManager {
         } catch (Exception e) {
             rst = false;
             LogUtil.error(logger, e, "insert failed.");
+        } finally {
+            DBCPUtil.releaseResource(rs, pst, conn);
         }
 
         return rst;

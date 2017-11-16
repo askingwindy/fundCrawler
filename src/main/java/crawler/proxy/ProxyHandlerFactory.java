@@ -1,7 +1,8 @@
 package crawler.proxy;
 
-import base.contants.ProxyTypeEnum;
+import base.enums.ProxyTypeEnum;
 import crawler.proxy.impl.FundCodeProxyImpl;
+import crawler.proxy.impl.FundInfoProxyImpl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,7 @@ public class ProxyHandlerFactory {
 
     static {
         holder.put(ProxyTypeEnum.FUND_ALL, new FundCodeProxyImpl());
+        holder.put(ProxyTypeEnum.FUND_INFO, new FundInfoProxyImpl());
     }
 
     /**

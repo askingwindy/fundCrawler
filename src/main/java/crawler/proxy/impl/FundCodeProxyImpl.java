@@ -1,7 +1,7 @@
 package crawler.proxy.impl;
 
 import base.Result;
-import base.contants.PageTypeEnum;
+import base.enums.PageTypeEnum;
 import base.template.ServiceCallBack;
 import base.template.ServiceTemplate;
 import base.template.impl.ServiceTemplateImpl;
@@ -28,14 +28,14 @@ public class FundCodeProxyImpl implements ProxyHandler {
 
     @Override
     public boolean execute() {
-        Result<Boolean> rst = new Result<Boolean>();
+        final Result<Void> rst = new Result<Void>();
 
         serviceTemplate.executeWithoutTransaction(rst, new ServiceCallBack() {
-            HttpManager httpManager ;
+            HttpManager httpManager;
 
             @Override
             public void before() {
-                httpManager= new HttpManager();
+                httpManager = new HttpManager();
             }
 
             @Override
@@ -52,7 +52,6 @@ public class FundCodeProxyImpl implements ProxyHandler {
 
             }
 
-
             @Override
             public void end() {
                 httpManager.shuntDown();
@@ -60,6 +59,6 @@ public class FundCodeProxyImpl implements ProxyHandler {
             }
         });
 
-        return true;
+        return rst.isSuccess();
     }
 }

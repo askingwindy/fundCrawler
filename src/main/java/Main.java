@@ -1,7 +1,8 @@
-import base.contants.ProxyTypeEnum;
+import base.enums.ProxyTypeEnum;
 import crawler.proxy.ProxyHandlerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.DBCPUtil;
 import util.LogUtil;
 
 /**
@@ -20,11 +21,17 @@ public class Main {
      */
     public static void main(String args[]) {
 
-        //1. 获取所有基金列表
         try {
-            ProxyHandlerFactory.newInstance(ProxyTypeEnum.FUND_ALL).execute();
+            //1. 获取所有基金列表
+//            ProxyHandlerFactory.newInstance(ProxyTypeEnum.FUND_ALL).execute();
+
+            //2. 获取基金单个页面详情
+            ProxyHandlerFactory.newInstance(ProxyTypeEnum.FUND_INFO).execute();
+
         } catch (Exception e) {
             LogUtil.error(logger,e);
+        }finally {
+            DBCPUtil.close();
         }
 
     }

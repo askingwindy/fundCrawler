@@ -1,8 +1,8 @@
 package crawler.page;
 
-import base.contants.PageTypeEnum;
+import base.enums.PageTypeEnum;
 import crawler.page.impl.FundCodePageHandler;
-import crawler.page.impl.FundPageHandler;
+import crawler.page.impl.FundInfoPageHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +20,7 @@ public class PageHandleFactory {
     private static Map<PageTypeEnum, PageHandler> holder = new HashMap<PageTypeEnum, PageHandler>();
 
     static {
-        holder.put(PageTypeEnum.FUND_INFO, new FundPageHandler());
+        holder.put(PageTypeEnum.FUND_INFO, new FundInfoPageHandler());
         holder.put(PageTypeEnum.FUND_ALL, new FundCodePageHandler());
     }
 

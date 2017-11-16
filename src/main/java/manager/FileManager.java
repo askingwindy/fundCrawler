@@ -15,15 +15,15 @@ import java.io.*;
 public class FileManager {
 
     /** 日志管理 */
-    private static Logger       logger           = LoggerFactory.getLogger(FileManager.class);
+    private static Logger logger         = LoggerFactory.getLogger(FileManager.class);
 
     /**
      * 编码格式
      */
-    private String              encoding         = "UTF-8";
+    private String        encoding       = "UTF-8";
 
     /** 文件夹地址*/
-    private static final String DEFAULT_FILE_DIC = "src/main/resources/";
+    private String        defaultFileDic = "src/main/resources/";
 
     public FileManager() {
     }
@@ -43,7 +43,7 @@ public class FileManager {
      */
     public boolean writeIntoFile(String outputFileName, String data, boolean append) {
         boolean rst = true;
-        File file = new File(DEFAULT_FILE_DIC + outputFileName);
+        File file = new File(defaultFileDic + outputFileName);
 
         try {
             //创建新的文件
@@ -87,7 +87,7 @@ public class FileManager {
      */
     public String readFile(String fileName) {
         StringBuilder dataBuilder = new StringBuilder();
-        File file = new File(DEFAULT_FILE_DIC + fileName);
+        File file = new File(defaultFileDic + fileName);
 
         LogUtil.infoCritical(logger, "START READING FILE,FILENAME= ", fileName);
 
@@ -120,4 +120,12 @@ public class FileManager {
 
     }
 
+    /**
+     * Setter method for property   defaultFileDic .
+     *
+     * @param defaultFileDic value to be assigned to property defaultFileDic
+     */
+    public void setDefaultFileDic(String defaultFileDic) {
+        this.defaultFileDic = defaultFileDic;
+    }
 }

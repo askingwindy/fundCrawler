@@ -31,8 +31,8 @@ public class ServiceTemplateImpl implements ServiceTemplate {
         try {
             action.before();
             action.executeService();
-
         } catch (Exception e) {
+            result.setSuccess(false);
             LogUtil.error(logger, e, "HANDLE ERROR");
 
         } finally {

@@ -35,6 +35,21 @@ public abstract class DateUtil {
     public final static String TIME_FORMAT_ISO_SHORT    = "yyyy-MM-dd'T'HH:mm:ss";
 
     /**
+     *
+     * @param sDate 2010年11月11日这种中文格式
+     * @return
+     */
+    public static Date parseDate(String sDate){
+        if (StringUtil.isEmpty(sDate)) {
+            return null;
+        }
+
+        sDate = sDate.replaceAll("[\\u4e00-\\u9fa5]","");
+        return parseDate(sDate, TIME_FORMAT_SHORT_TO_DAY);
+
+    }
+
+    /**
      * 将制定格式的时间戳转化为DATE
      * @param sDate 格式化前的日期
      * @return      格式化后的日期

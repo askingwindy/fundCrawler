@@ -1,17 +1,15 @@
-package base.contants;
+package base.enums;
 
 /**
- * 页面类型
+ * 处理代理类型
  * @author ruiying.hry
  * @version $Id: PageTypeEnum.java, v 0.1 2017-11-15 下午7:37 ruiying.hry Exp $$
  */
-public enum PageTypeEnum {
+public enum ProxyTypeEnum {
 
     FUND_INFO("FUND_INFO", "单个基金页面的详情"),
 
     FUND_NAV("FUND_NAV", "单个基金的净值"),
-
-    FUND_MANAGER("FUND_MANAGER", "基金经理信息"),
 
     FUND_ALL("FUND_ALL", "所有基金信息");
 
@@ -21,7 +19,7 @@ public enum PageTypeEnum {
     /** 配置场景description */
     private String description;
 
-    PageTypeEnum(String code, String description) {
+    ProxyTypeEnum(String code, String description) {
         this.code = code;
         this.description = description;
     }
