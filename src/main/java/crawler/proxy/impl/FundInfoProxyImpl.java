@@ -126,7 +126,7 @@ public class FundInfoProxyImpl implements ProxyHandler {
                             } else {
                                 //2.2 如果失败了,在控制台输出记录一下
                                 LogUtil.warn(logger, "fund info handle failed, code=" + fundCode);
-                                LogUtil.warn(logger, "connection refused, code=" + fundCode);
+                                LogUtil.info(errorCodeLogger,  fundCode+",");
 
                             }
 
