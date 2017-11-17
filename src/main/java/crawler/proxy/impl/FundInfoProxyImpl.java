@@ -5,21 +5,18 @@ import base.contants.FileNameContants;
 import base.template.ServiceCallBack;
 import base.template.ServiceTemplate;
 import base.template.impl.ServiceTemplateImpl;
-import com.alibaba.common.lang.StringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import crawler.page.PageHandler;
 import crawler.page.impl.FundInfoPageHandler;
 import crawler.proxy.ProxyHandler;
-import manager.DatabaseManager;
 import manager.FileManager;
 import manager.HttpManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.DBCPUtil;
 import util.LogUtil;
+import util.StringUtils;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -54,7 +51,6 @@ public class FundInfoProxyImpl implements ProxyHandler {
 
         final Result<Void> rst = new Result<Void>();
 
-        final List<String> handleSuccessCodes = new Vector<String>();
         final List<String> toHandledCodes = new Vector<String>();
 
         serviceTemplate.executeWithoutTransaction(rst, new ServiceCallBack() {
@@ -79,7 +75,7 @@ public class FundInfoProxyImpl implements ProxyHandler {
 
                 List<String> handledCodesSet = new ArrayList<String>();
                 for (String code : infohandledCodes) {
-                    if (StringUtil.isEmpty(code)) {
+                    if (StringUtils.isEmpty(code)) {
                         continue;
                     }
                     handledCodesSet.add(String.valueOf(code));
@@ -103,8 +99,8 @@ public class FundInfoProxyImpl implements ProxyHandler {
 
                 //1. 获取html
                 for (final String fundCode : toHandledCodes) {
-                    if (StringUtil.isEmpty(fundCode)) {
-                        //容错处理一下
+                    if (StringUtils.isEmpty(fundCode)) {
+                        //容错一下
                         continue;
                     }
 
@@ -120,18 +116,13 @@ public class FundInfoProxyImpl implements ProxyHandler {
                             httpManager.shuntDown();
 
                             //2. 处理信息
-                            Connection connection = DBCPUtil.getConnection();
-                            if (connection == null) {
-                                //2.2 如果失败了,在控制台输出记录一下
-                                LogUtil.warn(logger, "connection refused, code=" + fundCode);
-                                LogUtil.error(errorCodeLogger, "code="+fundCode);
-                                return;
+                            PageHandler pageHandler = new FundInfoPageHandler();
+                            if (pageHandler instanceof FundInfoPageHandler) {
+                                ((FundInfoPageHandler) pageHandler).setFundCode(fundCode);
                             }
-                            PageHandler pageHandler = new FundInfoPageHandler(fundCode,
-                                new DatabaseManager(connection));
                             if (pageHandler.handle(fundInfoHtml)) {
                                 //2.1 如果处理成功了,将这个code放入到已处理的set中
-                                LogUtil.info(sueedssCodeLogger,fundCode+",");
+                                LogUtil.info(sueedssCodeLogger, fundCode + ",");
                             } else {
                                 //2.2 如果失败了,在控制台输出记录一下
                                 LogUtil.warn(logger, "fund info handle failed, code=" + fundCode);
@@ -152,7 +143,7 @@ public class FundInfoProxyImpl implements ProxyHandler {
                         ;
                 } catch (InterruptedException e) {
                     //
-                    e.printStackTrace();
+                    LogUtil.error(logger, e);
                 }
 
                 LogUtil.infoCritical(logger, "SUCCESS END CRAWLER FUND INFO");
@@ -161,7 +152,7 @@ public class FundInfoProxyImpl implements ProxyHandler {
 
             @Override
             public void end() {
-                fileManager=null;
+                fileManager = null;
             }
         });
 

@@ -24,4 +24,41 @@ public class StringUtils {
         }
         return sb.toString();
     }
+
+    /**
+     * 判断str1与str2是否相等
+     *
+     * StringUtil.equals(null, null)   = true
+     * StringUtil.equals(null, "abc")  = false
+     * StringUtil.equals("abc", null)  = false
+     * StringUtil.equals("abc", "abc") = true
+     * StringUtil.equals("abc", "ABC") = false
+     *
+     * @param str1
+     * @param str2
+     * @return
+     */
+    public static boolean equals(String str1, String str2) {
+        if (str1 == null) {
+            return str2 == null;
+        }
+
+        return str1.equals(str2);
+    }
+
+    /**
+     * 判断str是否为空
+     *
+     * StringUtil.isEmpty(null)      = true
+     * StringUtil.isEmpty("")        = true
+     * StringUtil.isEmpty(" ")       = false
+     * StringUtil.isEmpty("bob")     = false
+     * StringUtil.isEmpty("  bob  ") = false
+     *
+     * @param str
+     * @return
+     */
+    public static boolean isEmpty(String str) {
+        return ((str == null) || (str.length() == 0));
+    }
 }

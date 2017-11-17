@@ -1,10 +1,8 @@
 package crawler.page.impl;
 
-import manager.DatabaseManager;
 import manager.FileManager;
 import org.junit.Before;
 import org.junit.Test;
-import util.DBCPUtil;
 
 /**
  * Created by ruiyingHe on 2017/11/16.
@@ -23,7 +21,8 @@ public class FundInfoPageHandlerTest {
     }
     @Test
     public void testHandle() throws Exception {
-        fundInfoPageHandler = new FundInfoPageHandler("169201", new DatabaseManager(DBCPUtil.getConnection()));
+        fundInfoPageHandler = new FundInfoPageHandler();
+        fundInfoPageHandler.setFundCode("169201");
 
         fundInfoPageHandler.handle(this.htmlStr);
     }

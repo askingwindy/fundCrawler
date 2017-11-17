@@ -32,11 +32,6 @@
             <version>1.7.21</version>
         </dependency>
         <dependency>
-            <groupId>com.alibaba.toolkit.common</groupId>
-            <artifactId>toolkit-common-lang</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.7.sec01</version>
@@ -79,9 +74,7 @@
         </dependency>
 
 
-
     </dependencies>
-
 
 
 </project>

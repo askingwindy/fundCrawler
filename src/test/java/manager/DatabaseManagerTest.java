@@ -1,11 +1,7 @@
 package manager;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import util.DBCPUtil;
 import util.DateUtil;
-import util.LogUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,14 +11,9 @@ import java.util.Map;
  */
 public class DatabaseManagerTest {
 
-
-    /**日志管理-成功写入code的输出*/
-    private static Logger sueedssCodeLogger = LoggerFactory.getLogger("fund_info_success_code");
-
     @Test
     public void testInsert() throws Exception {
-        DatabaseManager dbManager = new DatabaseManager(DBCPUtil.getConnection());
-        LogUtil.info(sueedssCodeLogger,",");
+        DatabaseManager dbManager = new DatabaseManager();
 
         try {
             Map<String, Object> sqlMap = new HashMap<String, Object>();
@@ -30,7 +21,8 @@ public class DatabaseManagerTest {
             sqlMap.put("fund_abbr_name", "基金简称");
             sqlMap.put("fund_code", "test10000005");
             sqlMap.put("fund_type", "编造的");
-            sqlMap.put("issue_date", DateUtil.parseDate("2017-11-11 00:00:00",DateUtil.TIME_FORMAT_STANDARD));
+            sqlMap.put("issue_date",
+                DateUtil.parseDate("2017-11-11 00:00:00", DateUtil.TIME_FORMAT_STANDARD));
             sqlMap.put("establish_scale", "test2");
             sqlMap.put("asset_value", "test3");
             sqlMap.put("units", "test5");

@@ -1,6 +1,6 @@
 package base.enums;
 
-import com.alibaba.common.lang.StringUtil;
+import util.StringUtils;
 
 /**
  * 存储db中基金与名字的对应信息
@@ -84,7 +84,7 @@ public enum FundInfoTableMappingEnum {
     public static FundInfoTableMappingEnum getEnumByChName(String chName) {
 
         for (FundInfoTableMappingEnum fund : FundInfoTableMappingEnum.values()) {
-            if (StringUtil.equals(fund.getChName(), chName)) {
+            if (StringUtils.equals(fund.getChName(), chName)) {
                 return fund;
             }
         }

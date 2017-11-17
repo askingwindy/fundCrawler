@@ -2,7 +2,6 @@ package crawler.page.impl;
 
 import base.contants.FundTableNameContants;
 import base.enums.FundInfoTableMappingEnum;
-import com.alibaba.common.lang.StringUtil;
 import crawler.page.PageHandler;
 import manager.DatabaseManager;
 import org.jsoup.Jsoup;
@@ -13,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.DateUtil;
 import util.LogUtil;
+import util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,23 +24,18 @@ import java.util.Map;
  */
 public class FundInfoPageHandler implements PageHandler {
     /** 日志管理 */
-    private static Logger   logger = LoggerFactory.getLogger(FundInfoPageHandler.class);
+    private static Logger logger = LoggerFactory.getLogger(FundInfoPageHandler.class);
 
-    private String          fundCode;
-
-    private DatabaseManager databaseManager;
-
-    public FundInfoPageHandler(String fundCode, DatabaseManager databaseManager) {
-        this.fundCode = fundCode;
-        this.databaseManager = databaseManager;
-    }
+    private String        fundCode;
 
     @Override
     public boolean handle(String htmltext) {
 
         LogUtil.info(logger, "page handle fund start,code=" + fundCode);
 
-        if (StringUtil.isEmpty(fundCode)) {
+        boolean rst = true;
+
+        if (StringUtils.isEmpty(fundCode)) {
             throw new RuntimeException("基金代码不存在,无法执行逻辑");
         }
 
@@ -69,9 +64,9 @@ public class FundInfoPageHandler implements PageHandler {
 
         //3. 数据库处理
         try {
-            LogUtil.info(logger, fundInfo.toString());
-
-            databaseManager.insert(FundTableNameContants.FUND_INFO_TALBE_NAME, fundInfo);
+            LogUtil.debug(logger, fundInfo.toString());
+            DatabaseManager databaseManager = new DatabaseManager();
+            rst = databaseManager.insert(FundTableNameContants.FUND_INFO_TALBE_NAME, fundInfo);
         } catch (Exception e) {
             LogUtil.error(logger, e, "handle fund info failed, code=" + fundCode);
             return false;
@@ -79,7 +74,7 @@ public class FundInfoPageHandler implements PageHandler {
 
         LogUtil.info(logger, "handle fund success,code=" + fundCode);
 
-        return true;
+        return rst;
     }
 
     /**

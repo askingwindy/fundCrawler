@@ -28,11 +28,8 @@ public class DatabaseManager {
     /** 日志管理 */
     private static Logger logger = LoggerFactory.getLogger(DatabaseManager.class);
 
-    /** 连接*/
-    private Connection    connection;
+    public DatabaseManager() {
 
-    public DatabaseManager(Connection connection) {
-        this.connection = connection;
     }
 
     /**
@@ -53,12 +50,12 @@ public class DatabaseManager {
      */
     public boolean insert(String table, Map<String, Object> sqlMap) {
 
-        Connection conn = this.connection;
+        Connection conn = DBCPUtil.getConnection();
         PreparedStatement pst = null;
         ResultSet rs = null;
 
         if (conn == null) {
-            LogUtil.error(logger, "mysql connection is null");
+            LogUtil.error(logger, "get connection is null");
             return false;
         }
 
@@ -81,7 +78,9 @@ public class DatabaseManager {
 
                 } else if (value instanceof Date) {
                     // >util.Date需要转化为sql.Date
-                    valueSb.append("DATE_FORMAT(\'").append(DateUtil.format((Date)value,DateUtil.TIME_FORMAT_STANDARD)).append("\',\'%Y-%m-%d %H:%i%s\')");
+                    valueSb.append("DATE_FORMAT(\'")
+                        .append(DateUtil.format((Date) value, DateUtil.TIME_FORMAT_STANDARD))
+                        .append("\',\'%Y-%m-%d %H:%i%s\')");
                 } else {
                     valueSb.append(value);
                 }

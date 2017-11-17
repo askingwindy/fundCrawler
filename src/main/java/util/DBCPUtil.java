@@ -30,7 +30,8 @@ public class DBCPUtil {
         basicDataSource.setPassword(DatabaseParamsContants.PASSWORD);
         //数据库初始化时，创建的连接个数
         basicDataSource.setInitialSize(100);
-        basicDataSource.setMaxTotal(100);
+        //The maximum number of active connections that can be allocated from this pool at the same time, or negative for no limit.
+        basicDataSource.setMaxTotal(20);
         //最小空闲连接数:当空闲的连接数少于阀值时，连接池就会预申请去一些连接，以免洪峰来时来不及申请。
         basicDataSource.setMinIdle(10);
         //数据库最大排队连接数
@@ -43,6 +44,9 @@ public class DBCPUtil {
         basicDataSource.setTimeBetweenEvictionRunsMillis(1000);
         //回收被遗弃的链接
         basicDataSource.setRemoveAbandonedTimeout(30);
+
+        // 只会发现当前连接失效，再创建一个连接供当前查询使用
+        basicDataSource.setTestOnBorrow(true);
     }
 
     /**

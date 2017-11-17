@@ -1,6 +1,5 @@
 package util;
 
-import com.alibaba.common.lang.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,12 +38,12 @@ public abstract class DateUtil {
      * @param sDate 2010年11月11日这种中文格式
      * @return
      */
-    public static Date parseDate(String sDate){
-        if (StringUtil.isEmpty(sDate)) {
+    public static Date parseDate(String sDate) {
+        if (StringUtils.isEmpty(sDate)) {
             return null;
         }
 
-        sDate = sDate.replaceAll("[\\u4e00-\\u9fa5]","");
+        sDate = sDate.replaceAll("[\\u4e00-\\u9fa5]", "");
         return parseDate(sDate, TIME_FORMAT_SHORT_TO_DAY);
 
     }
@@ -56,7 +55,7 @@ public abstract class DateUtil {
      */
     public static Date parseDate(String sDate, String formatter) {
 
-        if (StringUtil.isEmpty(sDate) || StringUtil.isEmpty(formatter)) {
+        if (StringUtils.isEmpty(sDate) || StringUtils.isEmpty(formatter)) {
             return null;
         }
 
