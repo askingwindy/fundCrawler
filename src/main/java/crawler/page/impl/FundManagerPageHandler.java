@@ -1,7 +1,3 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2017 All Rights Reserved.
- */
 package crawler.page.impl;
 
 import crawler.page.PageHandler;
@@ -14,7 +10,7 @@ import crawler.page.PageHandler;
 public class FundManagerPageHandler implements PageHandler {
 
     @Override
-    public boolean handle(String htmltext) {
+    public boolean handle() {
         return false;
     }
 }

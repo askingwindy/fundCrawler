@@ -11,9 +11,9 @@ import com.alibaba.fastjson.JSONArray;
 import crawler.page.PageHandleFactory;
 import crawler.page.PageHandler;
 import crawler.page.impl.FundInfoPageHandler;
+import crawler.page.impl.FundNavPageHandler;
 import crawler.proxy.ProxyHandler;
 import manager.FileManager;
-import manager.HttpManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.LogUtil;
@@ -143,11 +143,6 @@ public class FundInfoProxyHandler implements ProxyHandler {
                             try {
                                 LogUtil.info(logger, pageType.getCode()
                                                      + "---start handling fundCode=" + fundCode);
-                                HttpManager httpManager = new HttpManager();
-                                String fundInfoUrl = pageType.getHtmPrefix() + fundCode + ".html";
-
-                                String fundInfoHtml = httpManager.getHtmlByUrl(fundInfoUrl);
-                                httpManager.shuntDown();
 
                                 //2. 处理信息
                                 PageHandler pageHandler = new PageHandleFactory()
@@ -155,9 +150,12 @@ public class FundInfoProxyHandler implements ProxyHandler {
 
                                 if (pageHandler instanceof FundInfoPageHandler) {
                                     ((FundInfoPageHandler) pageHandler).setFundCode(fundCode);
+                                } else if (pageHandler instanceof FundNavPageHandler) {
+                                    ((FundNavPageHandler) pageHandler).setFundCode(fundCode);
+
                                 }
 
-                                boolean pageHandleRst = pageHandler.handle(fundInfoHtml);
+                                boolean pageHandleRst = pageHandler.handle();
 
                                 //3 如果处理成功了,将这个记录在sueessCodeLogger日志中
                                 if (pageHandleRst) {
@@ -174,7 +172,7 @@ public class FundInfoProxyHandler implements ProxyHandler {
                                                           + fundCode);
 
                                 //4. 输出所有失败的code
-                                LogUtil.info(errorCodeLogger, fundCode + ",");
+                                LogUtil.info(errorCodeLogger, "code="+fundCode + ",ex="+ex.getMessage());
                             }
 
                         }

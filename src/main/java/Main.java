@@ -28,12 +28,20 @@ public class Main {
             //            ProxyHandlerFactory.newInstance(ProxyTypeEnum.FUND_ALL).execute();
 
             //2. 获取基金单个页面详情
-            FundInfoProxyHandler fundInfoProxyHandler = (FundInfoProxyHandler) ProxyHandlerFactory
+//            FundInfoProxyHandler fundInfoProxyHandler = (FundInfoProxyHandler) ProxyHandlerFactory
+//                .newInstance(ProxyTypeEnum.FUND_INFO);
+//            fundInfoProxyHandler.initial(LoggerFactory.getLogger("fund_info_error_code"),
+//                LoggerFactory.getLogger("fund_info_success_code"),
+//                FileNameContants.FUND_INFO_HANDLED_CODES_FILE, PageTypeEnum.FUND_INFO);
+//            fundInfoProxyHandler.execute();
+
+            //3. 获取基金净值页面
+            FundInfoProxyHandler fundInfoProxyHandlerNav = (FundInfoProxyHandler) ProxyHandlerFactory
                 .newInstance(ProxyTypeEnum.FUND_INFO);
-            fundInfoProxyHandler.initial(LoggerFactory.getLogger("fund_info_error_code"),
-                LoggerFactory.getLogger("fund_info_success_code"),
-                FileNameContants.FUND_INFO_HANDLED_CODES_FILE, PageTypeEnum.FUND_INFO);
-            fundInfoProxyHandler.execute();
+            fundInfoProxyHandlerNav.initial(LoggerFactory.getLogger("fund_nav_error_code"),
+                LoggerFactory.getLogger("fund_nav_success_code"),
+                FileNameContants.FUND_NAV_HANDLED_CODES_FILE, PageTypeEnum.FUND_NAV);
+            fundInfoProxyHandlerNav.execute();
 
         } catch (Exception e) {
             LogUtil.error(logger, e);

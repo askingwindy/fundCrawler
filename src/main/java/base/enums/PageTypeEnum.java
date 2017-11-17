@@ -10,11 +10,13 @@ package base.enums;
  * @version $Id: PageTypeEnum.java, v 0.1 2017-11-17 下午12:20 ruiying.hry Exp $$
  */
 public enum PageTypeEnum {
-    FUND_INFO("FUND_INFO", "单个基金页面的详情", "http://fund.eastmoney.com/f10/jbgk_"),
+    FUND_INFO("FUND_INFO", "单个基金页面的详情", ""),
 
     FUND_NAV("FUND_NAV", "单个基金的净值"),
 
-    FUND_MANAGER("FUND_MANAGER", "基金经理信息"),
+    FUND_MANAGER("FundNavTableEnum", "基金经理信息"),
+
+    FUND_MANAGER_CHANGING_INFO("FUND_MANAGER_CHANGING_INFO", "基金经理变动信息"),
 
     FUND_ALL("FUND_ALL", "所有基金信息");
 

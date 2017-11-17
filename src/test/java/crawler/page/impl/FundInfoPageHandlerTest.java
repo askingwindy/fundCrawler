@@ -24,6 +24,6 @@ public class FundInfoPageHandlerTest {
         fundInfoPageHandler = new FundInfoPageHandler();
         fundInfoPageHandler.setFundCode("169201");
 
-        fundInfoPageHandler.handle(this.htmlStr);
+        fundInfoPageHandler.handle();
     }
 }

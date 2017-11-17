@@ -12,4 +12,7 @@ public class FileNameContants {
 
     /** 存储已获得单个基金信息的文件名*/
     public static final String FUND_INFO_HANDLED_CODES_FILE = "fundInfoHandledCodes.data";
+
+    /** 存储已获得基金净值的文件名*/
+    public static final String FUND_NAV_HANDLED_CODES_FILE  = "fundNavHandledCodes.data";
 }

@@ -6,7 +6,7 @@ import util.StringUtils;
  * 存储db中基金与名字的对应信息
  *
  * @author ruiying.hry
- * @version $Id: FundInfoTableMappingEnum.java, v 0.1 2017-11-16 下午1:56 ruiying.hry Exp $$
+ * @version $Id: FundNavTableEnum.java, v 0.1 2017-11-16 下午1:56 ruiying.hry Exp $$
  */
 public enum FundInfoTableMappingEnum {
 

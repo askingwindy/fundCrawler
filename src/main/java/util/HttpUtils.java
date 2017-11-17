@@ -1,4 +1,4 @@
-package manager;
+package util;
 
 import base.contants.HttpParamsContants;
 import org.apache.http.HttpEntity;
@@ -10,7 +10,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.LogUtil;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -20,32 +19,21 @@ import java.util.Random;
 /**
  * http工具类,获取页面数据
  * @author ruiying.hry
- * @version $Id: HttpManager.java, v 0.1 2017-11-15 下午7:21 ruiying.hry Exp $$
+ * @version $Id: HttpUtils.java, v 0.1 2017-11-15 下午7:21 ruiying.hry Exp $$
  */
-public class HttpManager {
+public class HttpUtils {
 
     /** 日志管理 */
-    private static Logger logger = LoggerFactory.getLogger(HttpManager.class);
-
-    private HttpClient    httpClient;
-
-    public HttpManager() {
-        httpClient = new DefaultHttpClient();
-    }
-
-    /**
-     * 关闭http连接
-     */
-    public void shuntDown() {
-        httpClient.getConnectionManager().shutdown();
-    }
+    private static Logger logger = LoggerFactory.getLogger(HttpUtils.class);
 
     /**
      * 通过url获取页面数据
      * @param url
      * @return
      */
-    public String getHtmlByUrl(String url) {
+    public static String getHtmlByUrl(String url) {
+
+        HttpClient httpClient = httpClient = new DefaultHttpClient();
 
         //0. 随机创建http 的header
         Map<String, String> httpHeaderMap = new HashMap<String, String>();
@@ -81,6 +69,9 @@ public class HttpManager {
             }
         } catch (Exception e) {
             LogUtil.error(logger, e, "url get error!!!" + url);
+        } finally {
+            httpClient.getConnectionManager().shutdown();
+
         }
         return html;
     }

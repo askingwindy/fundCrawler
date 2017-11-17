@@ -7,7 +7,6 @@ import base.template.impl.ServiceTemplateImpl;
 import crawler.page.PageHandler;
 import crawler.page.impl.FundCodePageHandler;
 import crawler.proxy.ProxyHandler;
-import manager.HttpManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.LogUtil;
@@ -30,30 +29,23 @@ public class FundCodeProxyHandler implements ProxyHandler {
         final Result<Void> rst = new Result<Void>();
 
         serviceTemplate.executeWithoutTransaction(rst, new ServiceCallBack() {
-            HttpManager httpManager;
 
             @Override
             public void before() {
-                httpManager = new HttpManager();
+
             }
 
             @Override
             public void executeService() {
 
-                //1. 获取html
-                String fundAllGetUrl = "http://fund.eastmoney.com/js/fundcode_search.js";
-                String htmlFundCode = httpManager.getHtmlByUrl(fundAllGetUrl);
-
-                //2. 处理信息
                 PageHandler pageHandler = new FundCodePageHandler();
-                pageHandler.handle(htmlFundCode);
+                pageHandler.handle();
                 LogUtil.infoCritical(logger, "SUCCESS CRAWLER FUND CODE LIST");
 
             }
 
             @Override
             public void end() {
-                httpManager.shuntDown();
 
             }
         });

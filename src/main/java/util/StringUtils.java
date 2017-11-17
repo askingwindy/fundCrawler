@@ -61,4 +61,17 @@ public class StringUtils {
     public static boolean isEmpty(String str) {
         return ((str == null) || (str.length() == 0));
     }
+
+    /**
+     * 如果str为空,返回默认参数
+     * @param str
+     * @param defaultStr
+     * @return
+     */
+    public static String defaultBlank(String str, String defaultStr) {
+        if(isEmpty(str)){
+            return defaultStr;
+        }
+        return str;
+    }
 }

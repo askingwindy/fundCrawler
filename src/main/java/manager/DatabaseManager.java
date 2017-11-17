@@ -14,7 +14,6 @@ import util.LogUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Date;
 import java.util.Map;
 
@@ -50,11 +49,10 @@ public class DatabaseManager {
      */
     public boolean insert(String table, Map<String, Object> sqlMap) {
 
-        Connection conn = DBCPUtil.getConnection();
-        PreparedStatement pst = null;
-        ResultSet rs = null;
+        Connection connection = DBCPUtil.getConnection();
+        PreparedStatement preparedStatement = null;
 
-        if (conn == null) {
+        if (connection == null) {
             LogUtil.error(logger, "get connection is null");
             return false;
         }
@@ -68,7 +66,7 @@ public class DatabaseManager {
             StringBuilder keySb = new StringBuilder();
             StringBuilder valueSb = new StringBuilder();
             for (String key : sqlMap.keySet()) {
-                keySb.append(key).append(",");
+                keySb.append("`").append(key).append("`").append(",");
 
                 Object value = sqlMap.get(key);
                 if (value instanceof String) {
@@ -99,9 +97,9 @@ public class DatabaseManager {
             LogUtil.debug(logger, "sql =" + sql);
 
             //2. 创建sql执行,并获取该插入的id,记录
-            pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement = connection.prepareStatement(sql);
 
-            pst.execute();
+            preparedStatement.execute();
 
             LogUtil.debug(logger, "sql insert success");
 
@@ -112,7 +110,57 @@ public class DatabaseManager {
             rst = false;
             LogUtil.error(logger, e, "insert failed.");
         } finally {
-            DBCPUtil.releaseResource(rs, pst, conn);
+            DBCPUtil.releaseResource(null, preparedStatement, connection);
+        }
+
+        return rst;
+    }
+
+    /**
+     * 根据fundCode,查询它在talbe中所包含的净值条数
+     * @param table 表名
+     * @param fundCode 基金名
+     * @return 条数
+     */
+    public int cntNavNumByFundCode(String table, String fundCode) {
+
+        Connection connection = DBCPUtil.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        int rst = -1;
+
+        if (connection == null) {
+            LogUtil.error(logger, "get connection is null");
+            return rst;
+        }
+
+        try {
+
+            //1. 创建select语句
+            StringBuilder sqlSb = new StringBuilder("SELECT COUNT(RECORD_DATE) FROM " + table
+                                                    + " WHERE FUND_CODE=\'" + fundCode+"\'");
+
+            //2. 进行查询
+            String sql = sqlSb.toString();
+            LogUtil.debug(logger, "sql =" + sql);
+
+            //2. 创建sql执行
+            preparedStatement = connection.prepareStatement(sql);
+
+            resultSet = preparedStatement.executeQuery();
+
+            if(resultSet.next()) {
+                rst = resultSet.getInt(1);
+            }
+
+            LogUtil.debug(logger, "sql query success, rst=" + rst);
+
+        } catch (Exception e) {
+            rst = -1;
+            LogUtil.error(logger, e, "query failed.");
+        } finally {
+            DBCPUtil.releaseResource(resultSet, preparedStatement, connection);
         }
 
         return rst;
