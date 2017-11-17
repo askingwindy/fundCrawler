@@ -43,7 +43,7 @@ public class FundCodePageHandler implements PageHandler {
 
         //2. 放入到文本中持久化
         fileManager = new FileManager();
-        fileManager.writeIntoFile(FileNameContants.FUND_ALL_CODES, fundCodeArray.toJSONString(),
+        fileManager.writeIntoFile(FileNameContants.FUND_ALL_CODES_FILE, fundCodeArray.toJSONString(),
             false);
         fileManager = null;
 

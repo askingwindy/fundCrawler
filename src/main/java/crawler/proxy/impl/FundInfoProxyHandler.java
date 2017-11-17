@@ -2,11 +2,13 @@ package crawler.proxy.impl;
 
 import base.Result;
 import base.contants.FileNameContants;
+import base.enums.PageTypeEnum;
 import base.template.ServiceCallBack;
 import base.template.ServiceTemplate;
 import base.template.impl.ServiceTemplateImpl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import crawler.page.PageHandleFactory;
 import crawler.page.PageHandler;
 import crawler.page.impl.FundInfoPageHandler;
 import crawler.proxy.ProxyHandler;
@@ -28,30 +30,59 @@ import java.util.concurrent.TimeUnit;
  * 基金单个页面详情获取
  *
  * @author ruiying.hry
- * @version $Id: FundInfoProxyImpl.java, v 0.1 2017-11-16 上午11:30 ruiying.hry Exp $$
+ * @version $Id: FundInfoProxyHandler.java, v 0.1 2017-11-16 上午11:30 ruiying.hry Exp $$
  */
-public class FundInfoProxyImpl implements ProxyHandler {
+public class FundInfoProxyHandler implements ProxyHandler {
 
     /**日志管理*/
-    private static Logger   logger            = LoggerFactory.getLogger(FundInfoProxyImpl.class);
+    private static Logger   logger            = LoggerFactory.getLogger(FundInfoProxyHandler.class);
 
     /**日志管理-错误code的输出*/
-    private static Logger   errorCodeLogger   = LoggerFactory.getLogger("fund_info_error_code");
+    private static Logger   errorCodeLogger   = null;
 
     /**日志管理-成功写入code的输出*/
-    private static Logger   sueedssCodeLogger = LoggerFactory.getLogger("fund_info_success_code");
+    private static Logger   successCodeLogger = null;
+
+    /**文件-已经写入到的code的文件名*/
+    private String          handledCodeFile   = null;
+
+    /**需要处理的页面类型*/
+    private PageTypeEnum    pageTypeEnum      = null;
 
     /**
      * 模板处理
      */
     private ServiceTemplate serviceTemplate   = new ServiceTemplateImpl();
 
+    /**
+     * 进行初始化操作
+     * @param errCodeLog fundCode处理错误(没有入库)的日志
+     * @param successCodeLog fundCode处理错误(没有入库)的日志
+     * @param file 读取写入成功的fundCode,应该与successCodeLog配置的日志地址一致
+     * @param page 页面处理类型
+     */
+    public void initial(Logger errCodeLog, Logger successCodeLog, String file, PageTypeEnum page) {
+        errorCodeLogger = errCodeLog;
+        successCodeLogger = successCodeLog;
+        this.handledCodeFile = file;
+        this.pageTypeEnum = page;
+
+    }
+
     @Override
     public boolean execute() {
+
+        if (successCodeLogger == null || errorCodeLogger == null
+            || StringUtils.isEmpty(handledCodeFile) || pageTypeEnum == null) {
+            LogUtil.error(logger, "pls init first");
+            return false;
+        }
 
         final Result<Void> rst = new Result<Void>();
 
         final List<String> toHandledCodes = new Vector<String>();
+        final String HANDLED_FILE = this.handledCodeFile;
+        final PageTypeEnum pageType = this.pageTypeEnum;
 
         serviceTemplate.executeWithoutTransaction(rst, new ServiceCallBack() {
 
@@ -60,7 +91,7 @@ public class FundInfoProxyImpl implements ProxyHandler {
             @Override
             public void before() {
                 //1. 从fundCodeList得到所有基金列表A
-                String fundCodesStr = fileManager.readFile(FileNameContants.FUND_ALL_CODES);
+                String fundCodesStr = fileManager.readFile(FileNameContants.FUND_ALL_CODES_FILE);
                 JSONArray allCodes = JSON.parseArray(fundCodesStr);
 
                 List<String> allCodesSet = new ArrayList<String>();
@@ -69,8 +100,7 @@ public class FundInfoProxyImpl implements ProxyHandler {
                 }
 
                 //2. 从fundeInfoHandleList里面得到信息已经被处理的基金列表B
-                String infoHandledCodesStr = fileManager
-                    .readFile(FileNameContants.FUND_INFO_HANDLED_CODES);
+                String infoHandledCodesStr = fileManager.readFile(HANDLED_FILE);
                 String[] infohandledCodes = infoHandledCodesStr.split(",");
 
                 List<String> handledCodesSet = new ArrayList<String>();
@@ -95,7 +125,8 @@ public class FundInfoProxyImpl implements ProxyHandler {
             @Override
             public void executeService() {
 
-                LogUtil.infoCritical(logger, "TOTAL FUND CNT:" + toHandledCodes.size());
+                LogUtil.infoCritical(logger, pageType.getCode() + "---TOTAL FUND CNT:"
+                                             + toHandledCodes.size());
 
                 ExecutorService fixedThreadPool = Executors.newFixedThreadPool(20);
 
@@ -110,30 +141,39 @@ public class FundInfoProxyImpl implements ProxyHandler {
                         @Override
                         public void run() {
                             try {
-                                LogUtil.info(logger, "start handling fundCode=" + fundCode);
+                                LogUtil.info(logger, pageType.getCode()
+                                                     + "---start handling fundCode=" + fundCode);
                                 HttpManager httpManager = new HttpManager();
-                                String fundInfoUrl = "http://fund.eastmoney.com/f10/jbgk_"
-                                                     + fundCode + ".html";
+                                String fundInfoUrl = pageType.getHtmPrefix() + fundCode + ".html";
 
                                 String fundInfoHtml = httpManager.getHtmlByUrl(fundInfoUrl);
                                 httpManager.shuntDown();
 
                                 //2. 处理信息
-                                PageHandler pageHandler = new FundInfoPageHandler();
+                                PageHandler pageHandler = new PageHandleFactory()
+                                    .getInstance(pageType);
+
                                 if (pageHandler instanceof FundInfoPageHandler) {
                                     ((FundInfoPageHandler) pageHandler).setFundCode(fundCode);
                                 }
-                                if (pageHandler.handle(fundInfoHtml)) {
-                                    //2.1 如果处理成功了,将这个code放入到已处理的set中
-                                    LogUtil.info(sueedssCodeLogger, fundCode + ",");
+
+                                boolean pageHandleRst = pageHandler.handle(fundInfoHtml);
+
+                                //3 如果处理成功了,将这个记录在sueessCodeLogger日志中
+                                if (pageHandleRst) {
+                                    LogUtil.info(successCodeLogger, fundCode + ",");
                                 } else {
-                                    //2.2 如果失败了,在控制台输出记录一下
-                                    LogUtil.warn(logger, "fund info handle failed, code="
+                                    //>  如果失败了,在控制台输出记录一下
+                                    LogUtil.warn(logger, pageType.getCode()
+                                                         + "---fund info handle failed, code="
                                                          + fundCode);
                                     throw new RuntimeException("code insert database failed");
                                 }
                             } catch (Exception ex) {
-                                LogUtil.error(logger,ex,"fundCode="+fundCode);
+                                LogUtil.error(logger, ex, pageType.getCode() + "---fundCode="
+                                                          + fundCode);
+
+                                //4. 输出所有失败的code
                                 LogUtil.info(errorCodeLogger, fundCode + ",");
                             }
 
@@ -153,7 +193,8 @@ public class FundInfoProxyImpl implements ProxyHandler {
                     LogUtil.error(logger, e);
                 }
 
-                LogUtil.infoCritical(logger, "SUCCESS END CRAWLER FUND INFO");
+                LogUtil.infoCritical(logger, pageType.getCode()
+                                             + "---SUCCESS END CRAWLER FUND INFO");
 
             }
 

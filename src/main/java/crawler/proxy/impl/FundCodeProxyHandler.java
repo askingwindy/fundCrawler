@@ -15,12 +15,12 @@ import util.LogUtil;
 /**
  *
  * @author ruiying.hry
- * @version $Id: FundCodeProxyImpl.java, v 0.1 2017-11-15 下午9:48 ruiying.hry Exp $$
+ * @version $Id: FundCodeProxyHandler.java, v 0.1 2017-11-15 下午9:48 ruiying.hry Exp $$
  */
-public class FundCodeProxyImpl implements ProxyHandler {
+public class FundCodeProxyHandler implements ProxyHandler {
 
     /** 日志管理 */
-    private static Logger   logger          = LoggerFactory.getLogger(FundCodeProxyImpl.class);
+    private static Logger   logger          = LoggerFactory.getLogger(FundCodeProxyHandler.class);
 
     /** 模板处理*/
     private ServiceTemplate serviceTemplate = new ServiceTemplateImpl();

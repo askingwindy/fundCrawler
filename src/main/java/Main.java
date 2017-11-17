@@ -1,5 +1,8 @@
+import base.contants.FileNameContants;
+import base.enums.PageTypeEnum;
 import base.enums.ProxyTypeEnum;
 import crawler.proxy.ProxyHandlerFactory;
+import crawler.proxy.impl.FundInfoProxyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.LogUtil;
@@ -25,7 +28,12 @@ public class Main {
             //            ProxyHandlerFactory.newInstance(ProxyTypeEnum.FUND_ALL).execute();
 
             //2. 获取基金单个页面详情
-            ProxyHandlerFactory.newInstance(ProxyTypeEnum.FUND_INFO).execute();
+            FundInfoProxyHandler fundInfoProxyHandler = (FundInfoProxyHandler) ProxyHandlerFactory
+                .newInstance(ProxyTypeEnum.FUND_INFO);
+            fundInfoProxyHandler.initial(LoggerFactory.getLogger("fund_info_error_code"),
+                LoggerFactory.getLogger("fund_info_success_code"),
+                FileNameContants.FUND_INFO_HANDLED_CODES_FILE, PageTypeEnum.FUND_INFO);
+            fundInfoProxyHandler.execute();
 
         } catch (Exception e) {
             LogUtil.error(logger, e);
