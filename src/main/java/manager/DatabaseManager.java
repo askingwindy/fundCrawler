@@ -78,7 +78,7 @@ public class DatabaseManager {
                     // >util.Date需要转化为sql.Date
                     valueSb.append("DATE_FORMAT(\'")
                         .append(DateUtil.format((Date) value, DateUtil.TIME_FORMAT_STANDARD))
-                        .append("\',\'%Y-%m-%d %H:%i%s\')");
+                        .append("\',\'%Y-%m-%d\')");
                 } else {
                     valueSb.append(value);
                 }
