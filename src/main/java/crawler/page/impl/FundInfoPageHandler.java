@@ -97,14 +97,18 @@ public class FundInfoPageHandler implements PageHandler {
                 rst = DateUtil.parseDate(value.split("/")[0].trim());
 
                 //发行规模
-                fundInfo.put(FundInfoTableMappingEnum.ESTABLISH_SCALE.getDbCode(),
-                    value.split("/")[1].trim());
+                if (value.contains("/")) {
+                    value = value.split("/")[1].trim();
+                } else {
+                    value = "---";
+                }
+                fundInfo.put(FundInfoTableMappingEnum.ESTABLISH_SCALE.getDbCode(), value);
                 break;
             case ASSET_VALUE:
                 rst = value.split("（截止至")[0].trim();
 
                 //资产统计截止日期
-                value = value.split("（截止至：")[1];
+                value = this.getDate(value, "（截止至：", 1);
                 fundInfo.put(FundInfoTableMappingEnum.ASSET_VALUE_DATE.getDbCode(),
                     DateUtil.parseDate(value.substring(0, value.length() - 1)));
                 break;
@@ -113,7 +117,7 @@ public class FundInfoPageHandler implements PageHandler {
                 rst = value.split("（")[0];
 
                 //份额统计最后日期
-                value = value.split("（截止至：")[1];
+                value = this.getDate(value, "（截止至：", 1);
                 fundInfo.put(FundInfoTableMappingEnum.UNITS_DATE.getDbCode(),
                     DateUtil.parseDate(value.substring(0, value.length() - 1)));
 
@@ -130,6 +134,21 @@ public class FundInfoPageHandler implements PageHandler {
         }
         fundInfo.put(mappingEnum.getDbCode(), rst);
         return rst;
+    }
+
+    /**
+     * 从value中切割出年月日
+     * @param value value是字符串
+     * @param regxStr 根据regxStr对value进行切割得到数组
+     * @param index 数组中的index取值
+     * @return 行如1991年01月01日
+     */
+    private String getDate(String value, String regxStr, int index) {
+        if (value.contains(regxStr)) {
+            return value.split(regxStr)[index];
+        } else {
+            return DateUtil.DEFAULT_NULL_DATE;
+        }
     }
 
     /**

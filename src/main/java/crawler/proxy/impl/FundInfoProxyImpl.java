@@ -95,7 +95,9 @@ public class FundInfoProxyImpl implements ProxyHandler {
             @Override
             public void executeService() {
 
-                ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
+                LogUtil.infoCritical(logger, "TOTAL FUND CNT:" + toHandledCodes.size());
+
+                ExecutorService fixedThreadPool = Executors.newFixedThreadPool(20);
 
                 //1. 获取html
                 for (final String fundCode : toHandledCodes) {
@@ -107,27 +109,32 @@ public class FundInfoProxyImpl implements ProxyHandler {
                     fixedThreadPool.submit(new Runnable() {
                         @Override
                         public void run() {
-                            LogUtil.info(logger, "start handling fundCode=" + fundCode);
-                            HttpManager httpManager = new HttpManager();
-                            String fundInfoUrl = "http://fund.eastmoney.com/f10/jbgk_" + fundCode
-                                                 + ".html";
+                            try {
+                                LogUtil.info(logger, "start handling fundCode=" + fundCode);
+                                HttpManager httpManager = new HttpManager();
+                                String fundInfoUrl = "http://fund.eastmoney.com/f10/jbgk_"
+                                                     + fundCode + ".html";
 
-                            String fundInfoHtml = httpManager.getHtmlByUrl(fundInfoUrl);
-                            httpManager.shuntDown();
+                                String fundInfoHtml = httpManager.getHtmlByUrl(fundInfoUrl);
+                                httpManager.shuntDown();
 
-                            //2. 处理信息
-                            PageHandler pageHandler = new FundInfoPageHandler();
-                            if (pageHandler instanceof FundInfoPageHandler) {
-                                ((FundInfoPageHandler) pageHandler).setFundCode(fundCode);
-                            }
-                            if (pageHandler.handle(fundInfoHtml)) {
-                                //2.1 如果处理成功了,将这个code放入到已处理的set中
-                                LogUtil.info(sueedssCodeLogger, fundCode + ",");
-                            } else {
-                                //2.2 如果失败了,在控制台输出记录一下
-                                LogUtil.warn(logger, "fund info handle failed, code=" + fundCode);
-                                LogUtil.info(errorCodeLogger,  fundCode+",");
-
+                                //2. 处理信息
+                                PageHandler pageHandler = new FundInfoPageHandler();
+                                if (pageHandler instanceof FundInfoPageHandler) {
+                                    ((FundInfoPageHandler) pageHandler).setFundCode(fundCode);
+                                }
+                                if (pageHandler.handle(fundInfoHtml)) {
+                                    //2.1 如果处理成功了,将这个code放入到已处理的set中
+                                    LogUtil.info(sueedssCodeLogger, fundCode + ",");
+                                } else {
+                                    //2.2 如果失败了,在控制台输出记录一下
+                                    LogUtil.warn(logger, "fund info handle failed, code="
+                                                         + fundCode);
+                                    throw new RuntimeException("code insert database failed");
+                                }
+                            } catch (Exception ex) {
+                                LogUtil.error(logger,ex,"fundCode="+fundCode);
+                                LogUtil.info(errorCodeLogger, fundCode + ",");
                             }
 
                         }

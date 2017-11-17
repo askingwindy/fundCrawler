@@ -33,18 +33,26 @@ public abstract class DateUtil {
     /**yyyy-MM-ddTHH:mm:ss时间格式*/
     public final static String TIME_FORMAT_ISO_SHORT    = "yyyy-MM-dd'T'HH:mm:ss";
 
+    /**如果时间为null,默认返回的值*/
+    public final static String DEFAULT_NULL_DATE        = "1990年01月01日";
+
     /**
-     *
-     * @param sDate 2010年11月11日这种中文格式
+     * 2010年11月11日这种中文格式;如果格式不符合,返回DEFAULT_NULL_DATE
+     * @param sDate
      * @return
      */
     public static Date parseDate(String sDate) {
         if (StringUtils.isEmpty(sDate)) {
             return null;
         }
-
         sDate = sDate.replaceAll("[\\u4e00-\\u9fa5]", "");
-        return parseDate(sDate, TIME_FORMAT_SHORT_TO_DAY);
+        Date rst = parseDate(sDate, TIME_FORMAT_SHORT_TO_DAY);
+
+        if (rst == null) {
+            rst = parseDate(DEFAULT_NULL_DATE);
+        }
+
+        return rst;
 
     }
 
