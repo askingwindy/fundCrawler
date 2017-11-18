@@ -6,8 +6,8 @@ package crawler.page;
 
 import base.enums.PageTypeEnum;
 import crawler.page.impl.FundInfoPageHandler;
-import crawler.page.impl.FundManagerPageHandler;
 import crawler.page.impl.FundNavPageHandler;
+import crawler.page.impl.FunderInfoPageHandler;
 
 /**
  * 做一个页面工程进行 处理
@@ -26,7 +26,7 @@ public class PageHandleFactory {
             case FUND_INFO:
                 return new FundInfoPageHandler();
             case FUND_MANAGER:
-                return new FundManagerPageHandler();
+                return new FunderInfoPageHandler();
             case FUND_NAV:
                 return new FundNavPageHandler();
             default:

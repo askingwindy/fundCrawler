@@ -15,10 +15,10 @@ import java.sql.DriverManager;
 public class JDBCUtil {
 
     /** 日志管理 */
-    private static Logger     logger = LoggerFactory.getLogger(JDBCUtil.class);
+    private static Logger logger = LoggerFactory.getLogger(JDBCUtil.class);
 
     /** 连接*/
-    private static Connection conn   = null;
+    private static Connection conn = null;
 
     /**
      * 链接sql
