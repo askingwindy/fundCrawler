@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.DateUtil;
-import util.LogUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,14 +13,12 @@ import java.util.Map;
  */
 public class DatabaseManagerTest {
 
-
     /**日志管理-成功写入code的输出*/
     private static Logger sueedssCodeLogger = LoggerFactory.getLogger("fund_info_success_code");
 
     @Test
     public void testInsert() throws Exception {
         DatabaseManager dbManager = new DatabaseManager();
-        LogUtil.info(sueedssCodeLogger,"123");
 
         try {
             Map<String, Object> sqlMap = new HashMap<String, Object>();
@@ -29,7 +26,8 @@ public class DatabaseManagerTest {
             sqlMap.put("fund_abbr_name", "基金简称");
             sqlMap.put("fund_code", "test10000005");
             sqlMap.put("fund_type", "编造的");
-            sqlMap.put("issue_date", DateUtil.parseDate("2017-11-11 00:00:00",DateUtil.TIME_FORMAT_STANDARD));
+            sqlMap.put("issue_date",
+                DateUtil.parseDate("2017-11-11 00:00:00", DateUtil.TIME_FORMAT_STANDARD));
             sqlMap.put("establish_scale", "test2");
             sqlMap.put("asset_value", "test3");
             sqlMap.put("units", "test5");
@@ -47,7 +45,28 @@ public class DatabaseManagerTest {
 
             System.out.println(sqlMap);
 
-//            dbManager.insert("fund_info", sqlMap);
+            //            dbManager.insert("fund_info", sqlMap);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+    }
+
+    @Test
+    public void testCntNavNumByFundCode() throws Exception {
+        DatabaseManager dbManager = new DatabaseManager();
+
+        try {
+            int rst = dbManager.cntNavNumByFundCode("fund_nav", "0000001");
+
+            System.out.println(rst);
+
+
+            rst = dbManager.cntNavNumByFundCode("fund_nav", "test1");
+
+            System.out.println(rst);
 
         } catch (Exception e) {
 

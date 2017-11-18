@@ -9,8 +9,6 @@ public enum ProxyTypeEnum {
 
     FUND_INFO("FUND_INFO", "单个基金页面的详情"),
 
-    FUND_NAV("FUND_NAV", "单个基金的净值"),
-
     FUND_ALL("FUND_ALL", "所有基金信息");
 
     /** 配置场景code */

@@ -37,7 +37,7 @@ public class DBCPUtil {
         //数据库最大排队连接数
         basicDataSource.setMaxIdle(1000);
         //最大等待时间:1s
-        basicDataSource.setMaxWaitMillis(1000);
+        basicDataSource.setMaxWaitMillis(5000);
         //空闲连接60秒中后释放
         basicDataSource.setMinEvictableIdleTimeMillis( 1000);
         //5分钟检测一次是否有死掉的线程

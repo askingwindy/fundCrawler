@@ -8,8 +8,7 @@ package crawler.page;
 public interface PageHandler {
     /**
      * 返回处理后的结果
-     * @param htmltext 页面信息
      * @return 成功失败
      */
-    boolean handle(String htmltext);
+    boolean handle();
 }

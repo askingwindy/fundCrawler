@@ -4,6 +4,7 @@ import base.contants.FundTableNameContants;
 import base.enums.FundInfoTableMappingEnum;
 import crawler.page.PageHandler;
 import manager.DatabaseManager;
+import util.HttpUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,18 +19,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 爬虫类的主体,利用开源java爬虫框架(Crawler4j)实现
+ *
+ * 获取单个基金详情页面的爬取与处理
+ * 
  * @author ruiying.hry
  * @version $Id: FundInfoPageHandler.java, v 0.1 2017-11-15 下午6:01 ruiying.hry Exp $$
  */
 public class FundInfoPageHandler implements PageHandler {
     /** 日志管理 */
-    private static Logger logger = LoggerFactory.getLogger(FundInfoPageHandler.class);
+    private static Logger       logger                = LoggerFactory
+                                                          .getLogger(FundInfoPageHandler.class);
 
-    private String        fundCode;
+    private static final String FUND_INFO_PAGE_PREFIX = "http://fund.eastmoney.com/f10/jbgk_";
+
+    private static final String FUND_INFO_PAGE_SUFFIX = ".html";
+
+    private String              fundCode;
 
     @Override
-    public boolean handle(String htmltext) {
+    public boolean handle() {
 
         LogUtil.info(logger, "page handle fund start,code=" + fundCode);
 
@@ -42,12 +50,15 @@ public class FundInfoPageHandler implements PageHandler {
         //0. 准备map,这个用于写入数据库中
         Map<String, Object> fundInfo = new HashMap<String, Object>();
 
-        //1. 从html的选择器中拿到table显示的数据
-        Document doc = Jsoup.parse(htmltext);
+        //1. 爬取网页数据,从html的选择器中拿到table显示的数据
+        String fundInfoHtml = getHtml();
+
+        //2. 解析网页
+        Document doc = Jsoup.parse(fundInfoHtml);
 
         Elements fundTableElement = doc.select("table.info").select(".w790");
 
-        //2. 通过映射,找到对应的枚举
+        //2.1 通过映射,找到对应的枚举
         for (Element el : fundTableElement.select("th")) {
             FundInfoTableMappingEnum mappingEnum = FundInfoTableMappingEnum.getEnumByChName(el
                 .text());
@@ -75,6 +86,25 @@ public class FundInfoPageHandler implements PageHandler {
         LogUtil.info(logger, "handle fund success,code=" + fundCode);
 
         return rst;
+    }
+
+    /**
+     * 爬取网页数据
+     * @return 网页内容
+     */
+    private String getHtml() {
+        //http请求
+
+        String fundInfoHtml = null;
+        try {
+            String fundInfoUrl = FUND_INFO_PAGE_PREFIX + fundCode + FUND_INFO_PAGE_SUFFIX;
+
+            fundInfoHtml = HttpUtils.getHtmlByUrl(fundInfoUrl);
+        } catch (Exception e) {
+            throw new RuntimeException("http请求获取失败", e);
+        } finally {
+        }
+        return fundInfoHtml;
     }
 
     /**

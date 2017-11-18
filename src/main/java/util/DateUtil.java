@@ -16,25 +16,29 @@ import java.util.Date;
 public abstract class DateUtil {
 
     /** 日志管理 */
-    private static Logger      logger                   = LoggerFactory.getLogger(DateUtil.class);
+    private static Logger      logger                      = LoggerFactory
+                                                               .getLogger(DateUtil.class);
 
     /**yyyy-MM-dd HH:mm:ss时间格式*/
-    public final static String TIME_FORMAT_STANDARD     = "yyyy-MM-dd HH:mm:ss";
+    public final static String TIME_FORMAT_STANDARD        = "yyyy-MM-dd HH:mm:ss";
 
     /**yyyyMMddHHmmss时间格式*/
-    public final static String TIME_FORMAT_NORMAL       = "yyyyMMddHHmmss";
+    public final static String TIME_FORMAT_NORMAL          = "yyyyMMddHHmmss";
 
     /**yyyyMMdd时间格式*/
-    public final static String TIME_FORMAT_SHORT_TO_DAY = "yyyyMMdd";
+    public final static String TIME_FORMAT_SHORT_TO_DAY    = "yyyyMMdd";
+
+    /**yyyy-MM-dd时间格式*/
+    public final static String TIME_FORMAT_STANDARD_TO_DAY = "yyyy-MM-dd";
 
     /**yyyy-MM-ddTHH:mm:ss.SSS时间格式*/
-    public final static String TIME_FORMAT_ISO          = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    public final static String TIME_FORMAT_ISO             = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
     /**yyyy-MM-ddTHH:mm:ss时间格式*/
-    public final static String TIME_FORMAT_ISO_SHORT    = "yyyy-MM-dd'T'HH:mm:ss";
+    public final static String TIME_FORMAT_ISO_SHORT       = "yyyy-MM-dd'T'HH:mm:ss";
 
     /**如果时间为null,默认返回的值*/
-    public final static String DEFAULT_NULL_DATE        = "1990年01月01日";
+    public final static String DEFAULT_NULL_DATE           = "1990年01月01日";
 
     /**
      * 2010年11月11日这种中文格式;如果格式不符合,返回DEFAULT_NULL_DATE
