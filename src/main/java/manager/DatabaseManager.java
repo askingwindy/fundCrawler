@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -161,6 +162,104 @@ public class DatabaseManager {
             LogUtil.error(logger, e, "query failed.");
         } finally {
             DBCPUtil.releaseResource(resultSet, preparedStatement, connection);
+        }
+
+        return rst;
+    }
+
+
+    /**
+     *
+     *
+     * 插入或更新sql,根据sql实现定制化插入
+     *
+     * sqlMap={"aa":"a","bb":"b"}
+     *
+     * 那么插入时将会生成sql如下:
+     * INSERT INTO table
+     * (aa,bb)
+     * VALUES
+     * (a,b)
+     * ON DUPLICATE KEY UPDATE
+     * aa=a,bb=b
+     * @param table table  表名
+     * @param sqlMap sqlMap key为列名,value为值(不需要带有gmt_create与gmt_modified)
+     * @return 插入成功/失败
+     */
+    public boolean update(String table, Map<String, Object> sqlMap, List<String> updateCols) {
+
+        Connection conn = DBCPUtil.getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+
+        if (conn == null) {
+            LogUtil.error(logger, "get connection is null");
+            return false;
+        }
+
+        boolean rst = true;
+
+        try {
+
+            //1. 创建insert语句
+            StringBuilder sqlSb = new StringBuilder("INSERT INTO " + table + " (");
+            StringBuilder keySb = new StringBuilder();
+            StringBuilder valueSb = new StringBuilder();
+            StringBuilder updateSb = new StringBuilder();
+            for (String key : sqlMap.keySet()) {
+                keySb.append(key).append(",");
+
+                Object value = sqlMap.get(key);
+                String val = value.toString();
+                if (value instanceof String) {
+                    // > 数据库插入中,字符串有'标识包围
+                    val = new StringBuilder("\'").append(value).append("\'").toString();
+
+                } else if (value instanceof Date) {
+                    // >util.Date需要转化为sql.Date
+                    val = new StringBuilder("DATE_FORMAT(\'")
+                            .append(DateUtil.format((Date) value, DateUtil.TIME_FORMAT_STANDARD))
+                            .append("\',\'%Y-%m-%d %H:%i:%s\')").toString();
+                }
+                valueSb.append(val).append(",");
+                if (updateCols!=null&&updateCols.contains(key)) {
+                    updateSb.append(key).append("=").append(val).append(",");
+                }
+
+            }
+
+            //> 删除key列表和value列表末尾的 ,
+            keySb.deleteCharAt(keySb.length() - 1);
+            valueSb.deleteCharAt(valueSb.length() - 1);
+
+
+            sqlSb.append(keySb)
+                    .append(") VALUES (")
+                    .append(valueSb).append(")");
+            if (updateCols!=null&&updateCols.size()>0){
+                updateSb.deleteCharAt(updateSb.length()-1);
+                sqlSb.append(" ON DUPLICATE KEY UPDATE ").append(updateSb);
+            }
+
+            String sql = sqlSb.toString();
+
+            LogUtil.debug(logger, "sql =" + sql);
+
+            //2. 创建sql执行,并获取该插入的id,记录
+            pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            pst.execute();
+
+            LogUtil.debug(logger, "sql insert success");
+
+        } catch (MySQLIntegrityConstraintViolationException ex) {
+            rst = false;
+            LogUtil.debug(logger, "mysql constraint violation", ex);
+        } catch (Exception e) {
+            rst = false;
+            LogUtil.error(logger, e, "insert failed.");
+        } finally {
+            DBCPUtil.releaseResource(rs, pst, conn);
         }
 
         return rst;
