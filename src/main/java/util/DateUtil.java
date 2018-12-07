@@ -66,6 +66,7 @@ public abstract class DateUtil {
      * @return      格式化后的日期
      */
     public static Date parseDate(String sDate, String formatter) {
+        sDate = sDate.trim();
 
         if (StringUtils.isEmpty(sDate) || StringUtils.isEmpty(formatter)) {
             return null;
