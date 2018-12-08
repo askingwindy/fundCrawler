@@ -72,8 +72,8 @@ public class FileHandler {
             }
 
             if (date == null) {
-                LogUtil.error(logger, "DATE ERROR");
-                return null;
+                LogUtil.error(logger, "DATE ERROR,line=" + idx);
+                return result;
             }
             fileOneDTO.setTradeDate(date);
             try {
@@ -124,10 +124,9 @@ public class FileHandler {
 
     public static void main(String args[]) {
         FileHandler fileHandler = new FileHandler();
-        List<FileDTO> rst = new FileHandler()
-            .exactFile1("/Users/ruiyingHe/Downloads/501/file2/table2-四川宏创实业有限公司.csv");
-        //List<FileDTO> rst = fileHandler
-        //    .exactFile1("/Users/ruiyingHe/Downloads/501/file2/四川盛源实业发展有限公司.csv");
+        //List<FileDTO> rst = new FileHandler()
+        //    .exactFile1("/Users/ruiyingHe/Downloads/501/file2/table2-四川宏创实业有限公司.csv");
+        List<FileDTO> rst = fileHandler.exactFile1("/Users/ruiyingHe/Downloads/501/file3/胡燕.csv");
         LogUtil.info(logger, JSON.toJSON(rst));
 
         //Map<String, List<FileDTO>> rstMap = new FileHandler()

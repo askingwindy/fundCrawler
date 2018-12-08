@@ -5,6 +5,7 @@
 package friends;
 
 import friends.dto.FileDTO;
+import util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,6 +75,9 @@ public class Main {
     private static Map<String, Map<String, List<FileDTO>>> getUidMap(Map<String, List<FileDTO>> dataMap) {
         Map<String, Map<String, List<FileDTO>>> uidDataMap = new HashMap<String, Map<String, List<FileDTO>>>();
         for (String tableName : dataMap.keySet()) {
+            if(StringUtils.isEmpty(tableName)){
+                continue;
+            }
             List<FileDTO> tableInfoLine = dataMap.get(tableName);
 
             Map<String, List<FileDTO>> uidMap = new HashMap<String, List<FileDTO>>();

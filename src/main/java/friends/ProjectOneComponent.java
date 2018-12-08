@@ -15,6 +15,7 @@ import util.LogUtil;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,9 +43,13 @@ public class ProjectOneComponent {
     private String                                  fileName;
 
     public void handle() {
+        //文件夹2和文件夹3进行合并
+        Map<String, Map<String, List<FileDTO>>> findingMap = new HashMap<String, Map<String, List<FileDTO>>>();
+        findingMap.putAll(table2UidDataMap);
+        findingMap.putAll(table3UidDataMap);
 
         //运行入口
-        recursion(table1DataList, new ArrayList<FileDTO>());
+        recursion(table1DataList, findingMap, new ArrayList<FileDTO>());
     }
 
     /**
@@ -52,47 +57,45 @@ public class ProjectOneComponent {
      * @param sourceDTOLineList 需要对比的原表数据的所有行
      * @param traceList 轨迹
      */
-    public void recursion(List<FileDTO> sourceDTOLineList, List<FileDTO> traceList) {
-        for (FileDTO sourceDTO : sourceDTOLineList) {
+    public void recursion(List<FileDTO> sourceDTOLineList,
+                          Map<String, Map<String, List<FileDTO>>> destUidDataMap,
+                          List<FileDTO> traceList) {
+        for (int i = 0; i < sourceDTOLineList.size(); i++) {
+
+            FileDTO sourceDTO = sourceDTOLineList.get(i);
             //1. 遍历的sourceLineList的"对方名称"，对应table2DataMap的key
             String tradeToName = sourceDTO.getTradeToName();
             String tradeToAccount = sourceDTO.getTradeToAccount();
 
-            if (!table2UidDataMap.containsKey(tradeToName)) {
-                //文件夹2下所有表格名称不符合，跳出，在第三个文件夹中查找
+            if (!destUidDataMap.containsKey(tradeToName)) {
+                //文件夹下所有表格名称不符合，可以进行输出了
 
-                if (!table3UidDataMap.containsKey(tradeToName)) {
-                    //文件夹3下所有表格名称不符合，跳出
-                    LogUtil.info(logger,
-                        "文件夹3下没有符合标准的目标对象。 查询的对象 sourceDTO =" + JSON.toJSONString(sourceDTO)
-                                + ",destTableName=" + tradeToName);
+                String custorName = sourceDTO.getCustomerName();
+                if (!table3UidDataMap.containsKey(custorName)) {
+                    //文件夹3下不存在这个"客户名称"，不需要输出这个数据
                     return;
                 }
-                Map<String, List<FileDTO>> table3UidDTOLineMap = table3UidDataMap.get(tradeToName);
-                if (!table3UidDTOLineMap.containsKey(tradeToAccount)) {
-                    //表3下所有账户名称不符合，跳出
-                    LogUtil.info(logger,
-                        "表3中交易账户无法核实。 查询的对象 sourceDTO =" + JSON.toJSONString(sourceDTO)
-                                + ",tradeToAccount=" + tradeToAccount + ",destTableName="
-                                + tradeToName);
-                    return;
-                }
-                List<FileDTO> table3DataList = table3UidDTOLineMap.get(tradeToAccount);
 
-                int outExistIdx = getIdxForOutMoneyExists(sourceDTO, table3DataList, "table3");
+                //> 找到连续的支出项
+                int lastOutIdx = this.getLastOutIdx(i + 1, sourceDTOLineList, tradeToName,
+                    sourceDTO);
 
-                if (outExistIdx != -1) {
-                    //表3找到了合法数据，进行记录
-                    traceList.add(table1DataList.get(outExistIdx));
+                List<FileDTO> innerList = sourceDTOLineList.subList(i, lastOutIdx + 1);
+
+                for (FileDTO output : innerList) {
+                    traceList.add(output);
                     fileManager.writeIntoFile("newData.data", JSONObject.toJSONString(traceList),
                         true);
+                    fileManager.writeIntoFile("newData.data", "\r\n", true);
+                    traceList.remove(traceList.size() - 1);
                 }
 
                 return;
             }
 
-            //2. 从文件夹2（维护表2的map）中，拿到"对方名称"对应的那一张表的数据
-            Map<String, List<FileDTO>> destUidDTOLineMap = table2UidDataMap.get(tradeToName);
+            //2. 从（维护表的map）中，拿到"对方名称"对应的那一张表的数据
+            Map<String, List<FileDTO>> destUidDTOLineMap = destUidDataMap.get(tradeToName);
+
             if (!destUidDTOLineMap.containsKey(tradeToAccount)) {
                 //文件2下所有账户名称不符合，跳出
                 LogUtil.info(logger, "交易账户无法核实。 查询的对象 sourceDTO =" + JSON.toJSONString(sourceDTO)
@@ -115,36 +118,51 @@ public class ProjectOneComponent {
             }
 
             //2.2 再找到收入不为空的第一行
-            int inMoneyLineIdx = outMoneyLineIdx + 1;
-            for (; inMoneyLineIdx < destDTOLineList.size(); inMoneyLineIdx++) {
-                FileDTO tabl2NextLine = destDTOLineList.get(inMoneyLineIdx);
-                BigDecimal table2NextLineInMoney = tabl2NextLine.getInMoney();
-                if (table2NextLineInMoney.compareTo(new BigDecimal(0)) > 0) {
-                    //收入不为空，跳出
-                    break;
-                }
-
-            }
-
-            if (inMoneyLineIdx >= destDTOLineList.size()) {
-                LogUtil.info(logger,
-                    "在支出不为空后，无法定位到收入不为空的一行。,支出不为空第一行为outMoneyLineIdx=" + outMoneyLineIdx
-                            + ",  查询的对象 sourceDTO =" + JSON.toJSONString(sourceDTO)
-                            + ",destTableName=" + tradeToName);
-                continue;
-            }
+            int lastOutIdx = this.getLastOutIdx(outMoneyLineIdx + 1, destDTOLineList, tradeToName,
+                sourceDTO);
 
             //3. 找到[支出不为空的第一行，到收入不为空的的上一行]之间的子链路，再次进行查询
-            List<FileDTO> innerList = destDTOLineList.subList(outMoneyLineIdx, inMoneyLineIdx);
+            List<FileDTO> innerList = destDTOLineList.subList(outMoneyLineIdx, lastOutIdx + 1);
 
             //3.1 将这个sourceDTO计入轨迹链表中
             traceList.add(sourceDTO);
             //3.2 进行轨迹查询
-            this.recursion(innerList, traceList);
+            this.recursion(innerList, destUidDataMap, traceList);
             //3.3 删除这个trace
             traceList.remove(traceList.size() - 1);
 
         }
+    }
+
+    /**
+     * 找到支出不为空的最后一行（下一行是第一笔收入）
+     * @param inMonIdx
+     * @param destDTOLineList
+     * @param tradeToName
+     * @param sourceDTO
+     * @return
+     */
+    private int getLastOutIdx(int inMonIdx, List<FileDTO> destDTOLineList, String tradeToName,
+                              FileDTO sourceDTO) {
+        //变相的，先找到收入不为空的第一行
+        for (; inMonIdx < destDTOLineList.size(); inMonIdx++) {
+            FileDTO tabl2NextLine = destDTOLineList.get(inMonIdx);
+            BigDecimal table2NextLineInMoney = tabl2NextLine.getInMoney();
+            if (table2NextLineInMoney.compareTo(new BigDecimal(0)) > 0) {
+                //收入不为空，跳出
+                break;
+            }
+
+        }
+        int lastOutIdx = inMonIdx - 1;
+
+        if (lastOutIdx >= destDTOLineList.size()) {
+            LogUtil.info(logger,
+                "在支出不为空后，无法定位到收入不为空的一行。 查询的对象 sourceDTO =" + JSON.toJSONString(sourceDTO)
+                        + ",destTableName=" + tradeToName);
+            return -1;
+        }
+        return lastOutIdx;
     }
 
     /**
@@ -201,10 +219,9 @@ public class ProjectOneComponent {
         }
 
         //3. 找到支出不为空的第一行
-        int sourceSearchIdex = destIdx;
-        destIdx = destIdx + 1;
-        for (; destIdx < searchLineList.size(); destIdx++) {
-            FileDTO outExistDTO = searchLineList.get(destIdx);
+        int searchIdx = destIdx + 1;
+        for (; searchIdx < searchLineList.size(); searchIdx++) {
+            FileDTO outExistDTO = searchLineList.get(searchIdx);
             if (outExistDTO.getOutMoney().compareTo(new BigDecimal(0)) > 0) {
                 //支出不为空，跳出
                 break;
@@ -212,17 +229,23 @@ public class ProjectOneComponent {
 
         }
 
-        if (destIdx >= searchLineList.size()) {
+        if (searchIdx >= searchLineList.size()) {
             LogUtil.info(
                 logger,
                 "目的表查询完毕,到表尾支出都为空。 sourceDTO=" + JSON.toJSONString(sourceDTO) + ",destTableName="
                         + tableName + "，符合要求的搜索第一行为 serarch first destDto="
-                        + JSONObject.toJSONString(destDTO) + ",sourceSearchIdex="
-                        + sourceSearchIdex);
+                        + JSONObject.toJSONString(destDTO) + ",sourceSearchIdex=" + searchIdx);
             return -1;
         }
 
-        return destIdx;
+        LogUtil.info(
+            logger,
+            "目的表查询完毕,找到目标行。 sourceDTO=" + JSON.toJSONString(sourceDTO) + ",destTableName="
+                    + tableName + "，符合要求的搜索行 idx=" + destIdx + ",搜索行 obj="
+                    + JSON.toJSONString(searchLineList.get(destIdx)) + ",支出不为空 idx=" + searchIdx
+                    + ",支出不为空 obj=" + JSON.toJSONString(searchLineList.get(searchIdx)));
+
+        return searchIdx;
     }
 
     /**
