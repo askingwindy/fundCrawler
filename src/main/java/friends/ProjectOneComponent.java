@@ -115,12 +115,11 @@ public class ProjectOneComponent {
             }
 
             //2.2 再找到收入不为空的第一行
-            int inMoneyLineIdx = outMoneyLineIdx;
-            inMoneyLineIdx = inMoneyLineIdx + 1;
+            int inMoneyLineIdx = outMoneyLineIdx + 1;
             for (; inMoneyLineIdx < destDTOLineList.size(); inMoneyLineIdx++) {
                 FileDTO tabl2NextLine = destDTOLineList.get(inMoneyLineIdx);
                 BigDecimal table2NextLineInMoney = tabl2NextLine.getInMoney();
-                if (table2NextLineInMoney.compareTo(new BigDecimal(0)) != 0) {
+                if (table2NextLineInMoney.compareTo(new BigDecimal(0)) > 0) {
                     //收入不为空，跳出
                     break;
                 }
@@ -135,13 +134,14 @@ public class ProjectOneComponent {
                 continue;
             }
 
-            //3. 找到支出不为空的第一行，到收入不为空的第一行的上一行，之间的子链路，再次进行查询
+            //3. 找到[支出不为空的第一行，到收入不为空的的上一行]之间的子链路，再次进行查询
             List<FileDTO> innerList = destDTOLineList.subList(outMoneyLineIdx, inMoneyLineIdx);
 
             //3.1 将这个sourceDTO计入轨迹链表中
             traceList.add(sourceDTO);
             //3.2 进行轨迹查询
             this.recursion(innerList, traceList);
+            //3.3 删除这个trace
             traceList.remove(traceList.size() - 1);
 
         }
@@ -185,7 +185,7 @@ public class ProjectOneComponent {
 
         //如果是第一行，认为这个收入恒成立，不需要进行余额比较
         if (destIdx != 0) {
-            //2.2 比较符合规则的这一行的收入，与上一行的余额。如果这一行的收入*0.1 >= 上一行的月，这个数据为搜索的数据
+            //2.2 比较符合规则的这一行的收入，与上一行的余额。如果这一行的收入*0.1 >= 上一行的余额，这个数据为搜索的数据
             FileDTO destLastLineDTO = searchLineList.get(destIdx - 1);
             BigDecimal fac1 = destDTO.getInMoney().multiply(new BigDecimal("0.1"));
             BigDecimal fac2 = destLastLineDTO.getBalanceMoney();
@@ -200,13 +200,12 @@ public class ProjectOneComponent {
             }
         }
 
-        //3. 开始找到下一行，直到支出不为空的下一行的收入不为空的第一行
-        int firstSearchIdx = destIdx;
-        //先找到支出不为空的第一行
+        //3. 找到支出不为空的第一行
+        int sourceSearchIdex = destIdx;
         destIdx = destIdx + 1;
         for (; destIdx < searchLineList.size(); destIdx++) {
             FileDTO outExistDTO = searchLineList.get(destIdx);
-            if (outExistDTO.getOutMoney().compareTo(new BigDecimal(0)) != 0) {
+            if (outExistDTO.getOutMoney().compareTo(new BigDecimal(0)) > 0) {
                 //支出不为空，跳出
                 break;
             }
@@ -218,7 +217,8 @@ public class ProjectOneComponent {
                 logger,
                 "目的表查询完毕,到表尾支出都为空。 sourceDTO=" + JSON.toJSONString(sourceDTO) + ",destTableName="
                         + tableName + "，符合要求的搜索第一行为 serarch first destDto="
-                        + JSONObject.toJSONString(destDTO) + ",firstSearchIdx=" + firstSearchIdx);
+                        + JSONObject.toJSONString(destDTO) + ",sourceSearchIdex="
+                        + sourceSearchIdex);
             return -1;
         }
 
