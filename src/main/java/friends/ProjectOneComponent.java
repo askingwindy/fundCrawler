@@ -25,8 +25,8 @@ import java.util.Map;
  */
 public class ProjectOneComponent {
     /** 日志管理 */
-    private static Logger                           logger = LoggerFactory
-                                                               .getLogger("project_handle_log");
+    private static Logger                           logger      = LoggerFactory
+                                                                    .getLogger("project_handle_log");
 
     /** 表1是源头表，分析每一行的数据*/
     private List<FileDTO>                           table1DataList;
@@ -37,7 +37,7 @@ public class ProjectOneComponent {
     /** 表3数据，以个人名名为key，，第二个key为客户账户*/
     private Map<String, Map<String, List<FileDTO>>> table3UidDataMap;
 
-    private FileManager                             fileManager;
+    private FileManager                             fileManager = new FileManager();
 
     private String                                  fileName;
 

@@ -28,19 +28,19 @@ public class Main {
 
         //2. 加载表2数据
         List<FileDTO> 内江宏创房地产开发有限公司 = fileHandler
-            .exactFile1("/Users/ruiyingHe/Downloads/501/file2/内江宏创房地产开发有限公司.csv");
+            .exactFile1("/Users/ruiyingHe/Downloads/501/file2/table2-内江宏创房地产开发有限公司.csv");
 
         List<FileDTO> 四川富华投资管理有限公司 = fileHandler
-            .exactFile1("/Users/ruiyingHe/Downloads/501/file2/四川富华投资管理有限公司.csv");
+            .exactFile1("/Users/ruiyingHe/Downloads/501/file2/table2-四川富华投资管理有限公司.csv");
 
         List<FileDTO> 四川宏创实业有限公司 = fileHandler
-            .exactFile1("/Users/ruiyingHe/Downloads/501/file2/四川宏创实业有限公司.csv");
+            .exactFile1("/Users/ruiyingHe/Downloads/501/file2/table2-四川宏创实业有限公司.csv");
 
         List<FileDTO> 四川奇峰实业 = fileHandler
-            .exactFile1("/Users/ruiyingHe/Downloads/501/file2/四川奇峰实业（集团）有限公司.csv");
+            .exactFile1("/Users/ruiyingHe/Downloads/501/file2/table2-四川奇峰实业（集团）有限公司.csv");
 
         List<FileDTO> 四川盛源实业发展有限公司 = fileHandler
-            .exactFile1("/Users/ruiyingHe/Downloads/501/file2/四川盛源实业发展有限公司.csv");
+            .exactFile1("/Users/ruiyingHe/Downloads/501/file2/table2-四川盛源实业发展有限公司.csv");
 
         Map<String, List<FileDTO>> table2Map = new HashMap<String, List<FileDTO>>();
         table2Map.put("内江宏创房地产开发有限公司", 内江宏创房地产开发有限公司);
@@ -65,6 +65,12 @@ public class Main {
         projectOneComponent.handle();
     }
 
+    /**
+     * 将<tableName, data>转化为<tableName,<account,data>>
+     *
+     * @param dataMap
+     * @return
+     */
     private static Map<String, Map<String, List<FileDTO>>> getUidMap(Map<String, List<FileDTO>> dataMap) {
         Map<String, Map<String, List<FileDTO>>> uidDataMap = new HashMap<String, Map<String, List<FileDTO>>>();
         for (String tableName : dataMap.keySet()) {
@@ -82,6 +88,8 @@ public class Main {
                     uidMap.put(customerAccount, fileDTOS);
                 }
             }
+
+            uidDataMap.put(tableName, uidMap);
 
         }
 

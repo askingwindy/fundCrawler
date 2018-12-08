@@ -125,7 +125,7 @@ public class FileHandler {
     public static void main(String args[]) {
         FileHandler fileHandler = new FileHandler();
         List<FileDTO> rst = new FileHandler()
-            .exactFile1("/Users/ruiyingHe/Downloads/501/file1/table1-四川盛源实业发展有限公司.csv");
+            .exactFile1("/Users/ruiyingHe/Downloads/501/file2/table2-四川宏创实业有限公司.csv");
         //List<FileDTO> rst = fileHandler
         //    .exactFile1("/Users/ruiyingHe/Downloads/501/file2/四川盛源实业发展有限公司.csv");
         LogUtil.info(logger, JSON.toJSON(rst));
