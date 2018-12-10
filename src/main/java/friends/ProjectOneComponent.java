@@ -7,6 +7,7 @@ package friends;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import friends.dto.FileDTO;
+import manager.CsvFileManager;
 import manager.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class ProjectOneComponent {
 
     private FileManager                             fileManager = new FileManager();
 
-    private String                                  fileName;
+    private List<String[]>                          result      = new ArrayList<String[]>();
 
     public void handle() {
         //文件夹2和文件夹3进行合并
@@ -50,6 +51,9 @@ public class ProjectOneComponent {
 
         //运行入口
         recursion(table1DataList, findingMap, new ArrayList<FileDTO>());
+
+        CsvFileManager csvFileManager = new CsvFileManager();
+        csvFileManager.writeCsv("src/main/resources/result_shengyuan.csv", result);
     }
 
     /**
@@ -84,9 +88,26 @@ public class ProjectOneComponent {
 
                 for (FileDTO output : innerList) {
                     traceList.add(output);
-                    fileManager.writeIntoFile("newData.data", JSONObject.toJSONString(traceList),
-                        true);
-                    fileManager.writeIntoFile("newData.data", "\r\n", true);
+                    List<String> lineList = new ArrayList<String>();
+                    for (FileDTO traceDTO : traceList) {
+                        lineList.add(traceDTO.getOwnedBank());
+                        lineList.add("A" + traceDTO.getCustomerAccount());
+                        lineList.add(traceDTO.getCustomerName());
+                        lineList.add(traceDTO.getTradeDateStr());
+                        lineList.add(traceDTO.getInMoney().toString());
+                        lineList.add(traceDTO.getOutMoney().toString());
+                        lineList.add(traceDTO.getBalanceMoney().toString());
+                        lineList.add("A" + traceDTO.getTradeToAccount());
+                        lineList.add(traceDTO.getTradeToName());
+                        lineList.add(traceDTO.getMemo());
+                    }
+
+                    String[] array = new String[lineList.size()];
+                    String[] s = lineList.toArray(array);
+                    result.add(s);
+
+                    //fileManager.writeIntoFile("结果输出-四川盛源实业发展有限公司.csv", sb.toString(), true);
+                    //fileManager.writeIntoFile("newData.data", "\r\n", true);
                     traceList.remove(traceList.size() - 1);
                 }
 
@@ -282,15 +303,6 @@ public class ProjectOneComponent {
      */
     public void setTable2UidDataMap(Map<String, Map<String, List<FileDTO>>> table2UidDataMap) {
         this.table2UidDataMap = table2UidDataMap;
-    }
-
-    /**
-     * Setter method for property   fileName .
-     *
-     * @param fileName  value to be assigned to property fileName
-     */
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
     }
 
     /**

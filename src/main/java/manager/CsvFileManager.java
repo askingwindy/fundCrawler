@@ -5,6 +5,7 @@
 package manager;
 
 import com.csvreader.CsvReader;
+import com.csvreader.CsvWriter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,20 +26,39 @@ public class CsvFileManager {
      * @param lines
 
      */
-    public void readeCsv(File file, List<String[]> lines) throws FileNotFoundException,
-                                                                  IOException {
+    public void readeCsv(File file, List<String[]> lines) throws FileNotFoundException, IOException {
         CsvReader reader = new CsvReader(file.getPath(), ',', Charset.defaultCharset());
 
         //读取表头
-        reader.getHeaders();
+        try {
+            reader.getHeaders();
 
-        while (reader.readRecord()) {
-            //逐行数据
-            lines.add(reader.getValues());
+            while (reader.readRecord()) {
+                //逐行数据
+                lines.add(reader.getValues());
+            }
+
+            reader.close();
+        } catch (Exception ex) {
+
+        } finally {
+            reader.close();
         }
 
-        reader.close();
+    }
 
+    public void writeCsv(String path, List<String[]> lines) {
+        CsvWriter csvWriter = new CsvWriter(path, ',', Charset.defaultCharset());
+
+        try {
+            for (String[] line : lines) {
+                csvWriter.writeRecord(line);
+            }
+        } catch (Exception ex) {
+
+        } finally {
+            csvWriter.close();
+        }
     }
 
 }
