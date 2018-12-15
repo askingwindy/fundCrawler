@@ -49,6 +49,22 @@ public class ProjectOneComponent {
         findingMap.putAll(table2UidDataMap);
         findingMap.putAll(table3UidDataMap);
 
+        ////todo:测试
+        //FileDTO test = new FileDTO();
+        //test.setOwnedBank("工商银行");
+        //test.setCustomerAccount("2307484119125979086");
+        //test.setCustomerName("内江宏创房地产开发有限公司");
+        //test.setTradeDate(DateUtil.parseDate("2015-04-17", "yyyy-MM-dd"));
+        //test.setInMoney(new BigDecimal(0));
+        //test.setOutMoney(new BigDecimal("4000000.00"));
+        //test.setBalanceMoney(new BigDecimal("0"));
+        //test.setTradeToAccount("22910101040031812");
+        //test.setTradeToName("四川盛源实业发展有限公司");
+        //test.setMemo("\t货款");
+        //
+        //table1DataList.clear();
+        //table1DataList.add(test);
+
         //运行入口
         recursion(table1DataList, findingMap, new ArrayList<FileDTO>());
 
@@ -77,7 +93,7 @@ public class ProjectOneComponent {
                 String custorName = sourceDTO.getCustomerName();
                 if (!table3UidDataMap.containsKey(custorName)) {
                     //文件夹3下不存在这个"客户名称"，不需要输出这个数据
-                    return;
+                    continue;
                 }
 
                 //> 找到连续的支出项
@@ -111,7 +127,7 @@ public class ProjectOneComponent {
                     traceList.remove(traceList.size() - 1);
                 }
 
-                return;
+                continue;
             }
 
             //2. 从（维护表的map）中，拿到"对方名称"对应的那一张表的数据
@@ -122,7 +138,7 @@ public class ProjectOneComponent {
                 LogUtil.info(logger, "交易账户无法核实。 查询的对象 sourceDTO =" + JSON.toJSONString(sourceDTO)
                                      + ",tradeToAccount=" + tradeToAccount + ",destTableName="
                                      + tradeToName);
-                return;
+                continue;
             }
 
             List<FileDTO> destDTOLineList = destUidDTOLineMap.get(tradeToAccount);
