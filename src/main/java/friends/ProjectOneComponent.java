@@ -17,8 +17,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 处理逻辑
@@ -29,6 +31,8 @@ public class ProjectOneComponent {
     /** 日志管理 */
     private static Logger                           logger      = LoggerFactory
                                                                     .getLogger("project_handle_log");
+
+    private final static String                     TITLE       = "所属银行,客户账户,客户名称,交易日期,收入金额, 支出金额 ,余额,对方账户,对方名称,备注,所属银行,客户账户,客户名称,交易日期,收入金额,支出金额,余额,对方账户,对方名称,备注,所属银行,客户账户,客户名称,交易日期,收入金额,支出金额,余额,对方账户,对方名称,备注,所属银行,客户账户,客户名称,交易日期,收入金额,支出金额,余额,对方账户,对方名称,备注";
 
     /** 表1是源头表，分析每一行的数据*/
     private List<FileDTO>                           table1DataList;
@@ -42,6 +46,8 @@ public class ProjectOneComponent {
     private FileManager                             fileManager = new FileManager();
 
     private List<String[]>                          result      = new ArrayList<String[]>();
+
+    private Set<FileDTO>                            fileSet     = new HashSet<FileDTO>();
 
     public void handle() {
         //文件夹2和文件夹3进行合并
@@ -69,7 +75,12 @@ public class ProjectOneComponent {
         recursion(table1DataList, findingMap, new ArrayList<FileDTO>());
 
         CsvFileManager csvFileManager = new CsvFileManager();
-        csvFileManager.writeCsv("src/main/resources/result_shengyuan.csv", result);
+
+        result.add(0, TITLE.split(","));
+        csvFileManager
+            .writeCsv(
+                "/Users/ruiyingHe/Library/Mobile Documents/com~apple~CloudDocs/work/2018/结果/hongchuang_2019.csv",
+                result);
     }
 
     /**
@@ -103,6 +114,13 @@ public class ProjectOneComponent {
                 List<FileDTO> innerList = sourceDTOLineList.subList(i, lastOutIdx + 1);
 
                 for (FileDTO output : innerList) {
+                    //别重复记录一样的信息
+                    if (fileSet.contains(output)) {
+                        continue;
+                    } else {
+                        fileSet.add(output);
+
+                    }
                     traceList.add(output);
                     List<String> lineList = new ArrayList<String>();
                     for (FileDTO traceDTO : traceList) {

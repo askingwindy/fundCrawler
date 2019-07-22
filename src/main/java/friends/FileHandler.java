@@ -38,6 +38,11 @@ public class FileHandler {
     public List<FileDTO> exactFile1(String path) {
         File file = new File(path);
 
+        String  fileName = file.getName();
+        if(StringUtils.isEmpty(fileName)||!fileName.endsWith("csv")){
+            return null;
+        }
+
         CsvFileManager csvFileManager = new CsvFileManager();
         List<String[]> lines = new ArrayList<String[]>();
 
@@ -105,6 +110,9 @@ public class FileHandler {
         for (File file : fileList) {
             if (file.isFile()) {
                 List<FileDTO> rst = this.exactFile1(file.getPath());
+                if(rst==null){
+                    continue;
+                }
                 rstMap.put(file.getName().split("\\.")[0], rst);
             }
         }

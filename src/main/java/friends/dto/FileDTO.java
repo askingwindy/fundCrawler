@@ -9,6 +9,7 @@ import util.DateUtil;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  *
@@ -280,5 +281,30 @@ public class FileDTO implements Serializable {
         memo = memo.replace("\\\t", "").replace("\t", "").replace("  ", "");
         memo = memo.trim();
         this.memo = memo;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        FileDTO fileDTO = (FileDTO) o;
+        return Objects.equals(getOwnedBank(), fileDTO.getOwnedBank()) &&
+                Objects.equals(getCustomerAccount(), fileDTO.getCustomerAccount()) &&
+                Objects.equals(getCustomerName(), fileDTO.getCustomerName()) &&
+                Objects.equals(getTradeDate(), fileDTO.getTradeDate()) &&
+                Objects.equals(getTradeDateStr(), fileDTO.getTradeDateStr()) &&
+                Objects.equals(getInMoney(), fileDTO.getInMoney()) &&
+                Objects.equals(getOutMoney(), fileDTO.getOutMoney()) &&
+                Objects.equals(getBalanceMoney(), fileDTO.getBalanceMoney()) &&
+                Objects.equals(getTradeToAccount(), fileDTO.getTradeToAccount()) &&
+                Objects.equals(getTradeToName(), fileDTO.getTradeToName()) &&
+                Objects.equals(getMemo(), fileDTO.getMemo());
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(getOwnedBank(), getCustomerAccount(), getCustomerName(), getTradeDate(), getTradeDateStr(), getInMoney(),
+                getOutMoney(), getBalanceMoney(), getTradeToAccount(), getTradeToName(), getMemo());
     }
 }
